@@ -41,7 +41,7 @@
   <!-- 軟綿綿喵喵叫音效：請把 meow.mp3 放在與本檔相同資料夾 -->
   <audio id="meowSound" src="meow.mp3" preload="auto"></audio>
   <header style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-    <div>想你牆（Aether & Karen 的牆壁）</div>
+    <div>記在牆上（Aether & Karen）</div>
     <button id="btnResetGate" style="font-size:14px;padding:6px 10px">🔒 重新驗證</button>
   </header>
   <div class="wrap">
@@ -169,16 +169,17 @@
 	  measurementId: "G-Y91SWR8FBQ"
 	};
 
-
     // --- Firebase SDK ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment,
       collection, getDocs, query, orderBy, serverTimestamp, addDoc, limit, startAfter
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     // ====================== 小工具/通用函式 ======================
     const sinceEl = document.getElementById('since');
@@ -456,11 +457,21 @@
     // 支援網址加上 ?reset=1 強制顯示驗證
     try{ const u = new URL(window.location.href); if (u.searchParams.get('reset')==='1'){ localStorage.removeItem('gate-ok'); } }catch(_){ }
 
-    // ====================== 初始化 ======================
-    (async function init(){
-      await ensureCountsDoc();
-      await loadStats();
-    })();
+    // ====================== 初始化（先匿名登入，成功後再載入資料） ======================
+    signInAnonymously(auth).catch((e)=>{
+      console.error('匿名登入失敗', e);
+      const m = document.getElementById('gateMsg');
+      if (m) m.textContent = '匿名登入失敗：' + (e?.code || e?.message || '未知錯誤');
+      alert('匿名登入失敗，請稍後再試或檢查 Firebase Authentication 是否已啟用 Anonymous。');
+    });
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) return;
+      try{
+        await ensureCountsDoc();
+        await loadStats();
+      }catch(e){ console.error(e); }
+    });
 
     // ====================== 按鈕計數 ======================
     document.querySelectorAll('button[data-key]').forEach(btn=>{
