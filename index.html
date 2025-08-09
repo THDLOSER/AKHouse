@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>想你牆</title>
+  <style>
+    :root { --bg: #fff; --fg:#111; --accent:#ff6aa2; }
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto;}
+    header{padding:16px 20px;font-weight:700;font-size:18px;}
+    .wrap{display:flex;flex-direction:column;gap:12px;padding:0 16px 16px;}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:680px;margin:0 auto;width:100%;}
+    button{
+      padding:14px 12px;border:1px solid #ddd;border-radius:10px;background:#fafafa;cursor:pointer;
+      font-size:16px;font-weight:700;transition:transform .06s ease, background .2s;
+    }
+    button:active{transform:scale(0.98);background:#f1f1f1}
+    .canvas-wrap{max-width:980px;margin:8px auto 28px;border:1px dashed #ddd;border-radius:12px;padding:10px;background:#fff}
+    #wall{width:100%;height:52vh;display:block}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin:6px 0 0 0}
+    .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid #eee;border-radius:999px;padding:6px 10px;background:#fff}
+    .dot{width:8px;height:8px;border-radius:50%}
+  </style>
+</head>
+<body>
+  <header>想你牆（即時正字）</header>
+
+  <div class="wrap">
+    <div class="grid">
+      <button data-key="think">🩷 想你</button>
+      <button data-key="hug">🤗 想抱抱</button>
+      <button data-key="kiss">😘 親親</button>
+      <button data-key="lean">🫴 靠一下</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="wall"></canvas>
+      <div class="legend">
+        <span class="chip"><span class="dot" style="background:#ff6aa2"></span>想你</span>
+        <span class="chip"><span class="dot" style="background:#6aa8ff"></span>抱抱</span>
+        <span class="chip"><span class="dot" style="background:#7bd88f"></span>親親</span>
+        <span class="chip"><span class="dot" style="background:#f7c84b"></span>靠一下</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // ===== 1) 這裡換成你的 Firebase 設定 =====
+	const firebaseConfig = {
+	  apiKey: "AIzaSyAiJTyJGBZIOQW9KAmBUNbxdBFJFr2ABuc",
+	  authDomain: "aether-karen-board.firebaseapp.com",
+	  projectId: "aether-karen-board",
+	  storageBucket: "aether-karen-board.firebasestorage.app",
+	  messagingSenderId: "907550532349",
+	  appId: "1:907550532349:web:c6bf67c8b86d44e3841494",
+	  measurementId: "G-Y91SWR8FBQ"
+	};
+    // =====================================
+
+    // --- Firebase init ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // 預設集合/文件
+    const COUNTS_PATH = { col: "tally-wall", id: "global" };
+    const countsRef = doc(db, COUNTS_PATH.col, COUNTS_PATH.id);
+
+    // 匿名登入（避免配額濫用時可鎖規則到已登入）
+    signInAnonymously(auth).catch(console.error);
+
+    // --- UI ---
+    const btns = document.querySelectorAll("button[data-key]");
+    const canvas = document.getElementById("wall");
+    const ctx = canvas.getContext("2d", { alpha: true });
+
+    // 顏色對應
+    const COLORS = {
+      think: "#ff6aa2",
+      hug:   "#6aa8ff",
+      kiss:  "#7bd88f",
+      lean:  "#f7c84b",
+    };
+
+    // 畫布尺寸自適應
+    function fitCanvas() {
+      const ratio = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width  = Math.floor(rect.width  * ratio);
+      canvas.height = Math.floor(rect.height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0); // 讓線寬視覺正常
+      drawAll(lastCounts);
+    }
+    window.addEventListener("resize", fitCanvas);
+
+    // 正字繪製：每 5 個為一組（|||| + /）
+    function drawGroup(x, y, color, scale=1) {
+      const w = 34 * scale;   // 一組寬
+      const h = 28 * scale;   // 一組高
+      const gap = 6 * scale;  // 直線之間距
+      const top = y, bottom = y + h;
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+
+      // 四條直線
+      for (let i=0;i<4;i++){
+        const xi = x + i*gap + 2*i; // 稍微拉開一點
+        ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+      }
+      // 斜線
+      ctx.beginPath();
+      ctx.moveTo(x - 2, bottom - 2);
+      ctx.lineTo(x + gap*3 + 6, top + 2);
+      ctx.stroke();
+
+      return {w, h};
+    }
+
+    // 畫單一品項的 N 個正字（自動換行）
+    function drawTallies(startX, startY, color, count, scale=1, maxPerRow=12) {
+      let x = startX, y = startY;
+      const groupSize = 5;
+      const spacingX = 40 * scale;
+      const spacingY = 38 * scale;
+
+      // 先畫完整「五」的組
+      let groups = Math.floor(count / groupSize);
+      let remain = count % groupSize;
+
+      for (let i=0;i<groups;i++){
+        drawGroup(x, y, color, scale);
+        x += spacingX;
+        if ((i+1) % maxPerRow === 0) {
+          x = startX; y += spacingY;
+        }
+      }
+
+      // 畫餘數（1~4 的直線）
+      if (remain > 0){
+        const top = y, bottom = y + 28*scale;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        const gap = 6*scale;
+
+        for (let i=0;i<remain;i++){
+          const xi = x + i*gap + 2*i;
+          ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+        }
+      }
+    }
+
+    // 排版：四區各自起點
+    function layout(counts) {
+      const rect = canvas.getBoundingClientRect();
+      const margin = 18;
+      const midX = rect.width/2, midY = rect.height/2;
+
+      return {
+        think: { x: margin,           y: margin },
+        hug:   { x: midX + margin/2,  y: margin },
+        kiss:  { x: margin,           y: midY + margin/2 },
+        lean:  { x: midX + margin/2,  y: midY + margin/2 },
+      };
+    }
+
+    // 清空並重畫全部
+    let lastCounts = { think:0, hug:0, kiss:0, lean:0 };
+    function drawAll(counts) {
+      if (!canvas.width || !canvas.height) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      // 區塊標題
+      ctx.fillStyle = "#666";
+      ctx.font = "bold 14px system-ui";
+      const pos = layout(counts);
+      ctx.fillText(`想你 (${counts.think||0})`, pos.think.x, pos.think.y - 6);
+      ctx.fillText(`想抱抱 (${counts.hug||0})`, pos.hug.x, pos.hug.y - 6);
+      ctx.fillText(`親親 (${counts.kiss||0})`, pos.kiss.x, pos.kiss.y - 6);
+      ctx.fillText(`靠一下 (${counts.lean||0})`, pos.lean.x, pos.lean.y - 6);
+
+      // 繪製正字
+      const scale = 1;
+      drawTallies(pos.think.x, pos.think.y, COLORS.think, counts.think||0, scale);
+      drawTallies(pos.hug.x,   pos.hug.y,   COLORS.hug,   counts.hug||0,   scale);
+      drawTallies(pos.kiss.x,  pos.kiss.y,  COLORS.kiss,  counts.kiss||0,  scale);
+      drawTallies(pos.lean.x,  pos.lean.y,  COLORS.lean,  counts.lean||0,  scale);
+    }
+
+    // 初始資料：若不存在就建立
+    async function ensureDoc() {
+      const snap = await getDoc(countsRef);
+      if (!snap.exists()) {
+        await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, createdAt: Date.now() });
+      }
+    }
+
+    // 監聽即時更新
+    onAuthStateChanged(auth, async () => {
+      await ensureDoc();
+      onSnapshot(countsRef, (snap)=>{
+        const data = snap.data() || {};
+        lastCounts = {
+          think: data.think || 0,
+          hug:   data.hug   || 0,
+          kiss:  data.kiss  || 0,
+          lean:  data.lean  || 0
+        };
+        fitCanvas(); // 自適應並重畫
+      });
+    });
+
+    // 點擊事件 -> 累加
+    document.querySelectorAll('button[data-key]').forEach(b=>{
+      b.addEventListener("click", async ()=>{
+        const key = b.dataset.key;
+        try {
+          await updateDoc(countsRef, { [key]: increment(1) });
+        } catch(e) {
+          await ensureDoc();
+          await updateDoc(countsRef, { [key]: increment(1) });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
