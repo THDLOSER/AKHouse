@@ -202,7 +202,7 @@
     });
   })();
 
-  (function(){ // 問答解鎖（65）
+  (function(){ // 問答解鎖（65）— 修正：使用旗標延後初始化
     const GATE_ANSWER = 65, GATE_TTL_DAYS = 7;
     const gate = document.getElementById('gate'), main = document.getElementById('main');
     const inpAge = document.getElementById('inpAge'), btnGate = document.getElementById('btnGate');
@@ -214,10 +214,31 @@
     function gateOk(){ const ok = localStorage.getItem('gate-ok')==='1'; if(!ok) return false; if(GATE_TTL_DAYS<=0) return false; const ts=parseInt(localStorage.getItem('gate-ok-ts')||'0',10); return (Date.now()-ts)<GATE_TTL_DAYS*86400000; }
     function setGateOk(){ localStorage.setItem('gate-ok','1'); localStorage.setItem('gate-ok-ts', String(Date.now())); }
     btnResetGate.onclick = ()=>{ localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts'); openGate(); };
-    if (new URLSearchParams(location.search).get('reset')==='1'){ localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts'); }
-    btnGate.onclick = ()=>{ const n=normAge(inpAge.value); if(n===GATE_ANSWER){ setGateOk(); gateMsg.textContent=''; openMain(); window.__afterUnlock && window.__afterUnlock(); } else gateMsg.textContent='答錯囉～再試試（提示：65）'; };
+
+    if (new URLSearchParams(location.search).get('reset')==='1'){
+      localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts');
+    }
+
+    // ✅ TTL 內：先顯示主畫面並設旗標，等主 App 載入後再初始化
+    if (gateOk()){
+      openMain();
+      localStorage.setItem('app-should-init','1');
+    }else{
+      openGate();
+    }
+
+    // ✅ 手動解鎖：立刻初始化（若已定義），並設旗標保險
+    btnGate.onclick = ()=>{
+      const n=normAge(inpAge.value);
+      if(n===GATE_ANSWER){
+        setGateOk(); gateMsg.textContent=''; openMain();
+        localStorage.setItem('app-should-init','1');
+        if (typeof window.__afterUnlock === 'function') window.__afterUnlock();
+      }else{
+        gateMsg.textContent='答錯囉～再試試（提示：65）';
+      }
+    };
     inpAge.addEventListener('keydown', e=>{ if(e.key==='Enter') btnGate.click(); });
-    if (gateOk()){ openMain(); window.__afterUnlock && window.__afterUnlock(); } else openGate();
   })();
 </script>
 
@@ -477,7 +498,6 @@
       })();
 
       /* ===== 匯出 CSV（兌現、留言） & 打包 ZIP ===== */
-      // 共用 CSV 轉義
       function csvEscape(s){ const t=String(s??''); return /[",\r\n]/.test(t) ? `"${t.replace(/"/g,'""')}"` : t; }
       function fmtDT(d){
         const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
@@ -485,7 +505,6 @@
         return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
       }
 
-      // 兌現 CSV（依目前年/月）
       async function exportCsvCurrentRange(){
         const yVal = selYear.value, mVal = selMonth.value;
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
@@ -513,7 +532,6 @@
       }
       document.getElementById('btnExportCsv')?.addEventListener('click', exportCsvCurrentRange);
 
-      // 留言 CSV（依目前年/月；用 ts）
       async function exportNotesCsvCurrentRange(){
         const yVal = selYear.value, mVal = selMonth.value;
         const snap = await getDocs(query(collection(db,'notes'), orderBy('ts','asc')));
@@ -540,8 +558,7 @@
       }
       document.getElementById('btnExportNotesCsv')?.addEventListener('click', exportNotesCsvCurrentRange);
 
-      /* ===== 打包 ZIP（兌現 CSV + 留言 CSV + meta.json） ===== */
-      // 產生兌現 CSV 內容
+      // ===== 打包 ZIP（兌現 CSV + 留言 CSV + meta.json） =====
       async function buildRedeemsCsv(yVal, mVal){
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
         const header=['日期','想你','抱抱','親親','靠一下','搓搓','小故事'];
@@ -559,7 +576,6 @@
         lines.push(['合計', sT, sH, sK, sL, sR, ''].map(csvEscape).join(','));
         return '\uFEFF' + lines.join('\r\n');
       }
-      // 產生留言 CSV 內容
       async function buildNotesCsv(yVal, mVal){
         const snap = await getDocs(query(collection(db,'notes'), orderBy('ts','asc')));
         const header=['日期時間','留言內容'];
@@ -577,7 +593,6 @@
         lines.push(['總筆數', count, ''].map(csvEscape).join(','));
         return '\uFEFF' + lines.join('\r\n');
       }
-      // 收集設定 → meta.json
       function buildMetaJson(){
         const theme = document.documentElement.getAttribute('data-theme') || 'light';
         const colorPrefs = (()=>{ try{ return JSON.parse(localStorage.getItem('colorPrefs')||'{}'); }catch{ return {}; }})();
@@ -585,7 +600,6 @@
         const exportedAt = new Date().toISOString();
         return JSON.stringify({ theme, colorPrefs, counts, exportedAt }, null, 2);
       }
-      // 動態載入 JSZip（只載一次）
       let __zipReady = null;
       function loadJSZip(){
         if (__zipReady) return __zipReady;
@@ -599,7 +613,6 @@
         });
         return __zipReady;
       }
-      // 主流程：打包 ZIP
       async function exportZipAll(){
         try{
           const yVal = selYear.value;
@@ -817,8 +830,12 @@
       showErrorOverlay('Firebase 載入失敗：' + (err && (err.message||err)));
     }
   };
+
+  // ✅ 主 App 定義完成後：若先前已通過解鎖（或 TTL 內），立刻自動初始化一次
+  if (localStorage.getItem('app-should-init') === '1') {
+    try { window.__afterUnlock(); } finally { localStorage.removeItem('app-should-init'); }
+  }
 </script>
 
 </body>
 </html>
-
