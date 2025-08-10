@@ -1,164 +1,230 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>想你牆 — 問答解鎖（65 歲）</title>
-  <style>
-    :root { --bg:#fff; --fg:#111; --muted:#666; --card:#fafafa; --br:#e9e9e9; }
-    html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto}
-    header{padding:16px 20px;font-weight:800;font-size:18px;border-bottom:1px solid var(--br)}
-    .wrap{display:flex;flex-direction:column;gap:14px;padding:14px}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:680px;margin:0 auto;width:100%}
-    button{padding:14px 12px;border:1px solid var(--br);border-radius:12px;background:var(--card);cursor:pointer;font-size:16px;font-weight:700;transition:transform .06s ease, background .2s}
-    button:active{transform:scale(.98)}
-    .section{max-width:1100px;margin:0 auto;width:100%}
-    .canvas-wrap{border:1px dashed var(--br);border-radius:12px;padding:10px;background:#fff}
-    #wall{width:100%;height:48vh;display:block}
-    .legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;margin:6px 0 0}
-    .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--br);border-radius:999px;padding:6px 10px;background:#fff}
-    .dot{width:8px;height:8px;border-radius:50%}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .card{border:1px solid var(--br);border-radius:12px;padding:12px;background:#fff}
-    .muted{color:var(--muted)}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid var(--br);padding:8px 10px;text-align:right}
-    th:first-child, td:first-child{text-align:left}
-    .hidden{display:none}
-    dialog{border:1px solid var(--br);border-radius:14px;padding:0;max-width:520px}
-    dialog header{font-size:16px;padding:12px 14px;border-bottom:1px solid var(--br)}
-    dialog .body{padding:14px}
-    input[type="text"], textarea, select{width:100%;box-sizing:border-box;border:1px solid var(--br);border-radius:10px;padding:10px;font-size:16px;background:#fff}
-    textarea{resize:vertical}
-    /* 並排圖表與表格 */
-    .chart-and-table{display:block}
-    @media(min-width:900px){.chart-and-table{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}}
-    .filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .filters label{font-size:14px;color:#444}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>想你牆（解鎖＋深色主題＋搓搓＋兌現小故事＋留言＋CSV+ZIP）</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#111111; --sub:#555; --card:#ffffff; --br:#e6e6e6;
+    --btn:#fafafa; --btn-br:#dddddd;
+    --c-think:#ff6aa2; --c-hug:#6aa8ff; --c-kiss:#7bd88f; --c-lean:#f7c84b; --c-rub:#c18cff;
+  }
+  [data-theme="dark"]{
+    --bg:#0f1115; --fg:#ffffff; --sub:#c7c7c7; --card:#141820; --br:#2a2f3a;
+    --btn:#1a1f29; --btn-br:#2a2f3a;
+    --c-think:#ff84b4; --c-hug:#8bbbff; --c-kiss:#9be3ab; --c-lean:#ffd76a; --c-rub:#d2a6ff;
+  }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--br)}
+  header .right{display:flex;gap:8px;align-items:center}
+  .wrap{padding:14px 14px 28px;display:flex;flex-direction:column;gap:12px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:720px;margin:0 auto;width:100%}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+  button{
+    padding:14px 12px;border:1px solid var(--btn-br);border-radius:10px;background:var(--btn);cursor:pointer;
+    font-size:16px;font-weight:700;color:var(--fg)
+  }
+  .row{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:980px){.row{grid-template-columns:1.2fr .8fr}}
+  .canvas-wrap{border:1px dashed var(--br);border-radius:12px;padding:10px;background:var(--card)}
+  #wall{width:100%;height:52vh;display:block}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin:8px 0 0}
+  .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--br);border-radius:999px;padding:6px 10px;background:var(--card);color:var(--fg)}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .card{background:var(--card);border:1px solid var(--br);border-radius:12px;padding:12px}
+  .muted{color:var(--sub)}
+  table{width:100%;border-collapse:collapse;color:var(--fg)}
+  th,td{border-bottom:1px solid var(--br);padding:8px 6px;text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  .kpi{display:flex;gap:12px;flex-wrap:wrap}
+  .kpi .box{background:var(--card);border:1px solid var(--br);border-radius:10px;padding:10px 12px;min-width:120px}
+  .ghost{opacity:.7}
+  input,textarea,select{background:var(--card);color:var(--fg);border:1px solid var(--br);border-radius:10px;padding:10px}
+  textarea{width:100%;box-sizing:border-box;resize:vertical}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .badge{display:inline-block;padding:2px 6px;border-radius:999px;font-size:12px;margin-right:6px;border:1px solid var(--br);background:var(--card);color:var(--fg)}
+  .badge.think{border-color:var(--c-think)}
+  .badge.hug{border-color:var(--c-hug)}
+  .badge.kiss{border-color:var(--c-kiss)}
+  .badge.lean{border-color:var(--c-lean)}
+  .badge.rub{border-color:var(--c-rub)}
+</style>
 </head>
 <body>
-  <!-- 軟綿綿喵喵叫音效：請把 meow.mp3 放在與本檔相同資料夾 -->
-  <audio id="meowSound" src="meow.mp3" preload="auto"></audio>
-  <header style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-    <div>記在牆上（Aether & Karen）</div>
-    <button id="btnResetGate" style="font-size:14px;padding:6px 10px">🔒 重新驗證</button>
-  </header>
-  <div class="wrap">
+<header>
+  <div><strong>想你牆</strong> <span class="muted">（問答解鎖）</span></div>
+  <div class="right">
+    <button id="btnTheme" title="切換主題">🌙/☀️</button>
+    <button id="btnResetGate" title="重新驗證">🔒 重新驗證</button>
+  </div>
+</header>
 
-    <!-- 問答解鎖：我們約定好幾歲？ -->
-    <div id="gate" class="section card">
-      <div style="font-weight:800;margin-bottom:6px">我們約定好幾歲？</div>
-      <div class="row" style="margin-top:8px">
-        <input id="answer" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="請輸入數字（提示：兩位數）" />
-        <button id="btnGate">開始</button>
-      </div>
-      <div id="gateMsg" class="muted" style="margin-top:6px"></div>
+<div class="wrap">
+
+  <!-- 問答解鎖（預設顯示，避免整頁空白） -->
+  <div id="gate" class="card">
+    <div style="font-weight:800;margin-bottom:6px">我們約定好幾歲？</div>
+    <div class="toolbar">
+      <input id="inpAge" type="text" inputmode="numeric" placeholder="請輸入數字" />
+      <button id="btnGate">解鎖</button>
+    </div>
+    <div id="gateMsg" class="muted" style="margin-top:6px"></div>
+  </div>
+
+  <!-- 主功能 -->
+  <div id="main" style="display:none">
+    <div class="grid" style="margin-bottom:6px">
+      <button class="action-btn" data-key="think">🩷 想你</button>
+      <button class="action-btn" data-key="hug">🤗 想抱抱</button>
+      <button class="action-btn" data-key="kiss">😘 親親</button>
+      <button class="action-btn" data-key="lean">🫴 靠一下</button>
+      <button class="action-btn" data-key="rub">🐾 搓搓</button>
     </div>
 
-    <!-- 主操作區 -->
-    <div id="main" class="section hidden">
-      <div class="grid">
-        <button data-key="think">🩷 想你</button>
-        <button data-key="hug">🤗 想抱抱</button>
-        <button data-key="kiss">😘 親親</button>
-        <button data-key="lean">🫴 靠一下</button>
-      </div>
-
-      <div class="canvas-wrap" style="margin-top:8px">
+    <div class="row">
+      <div class="canvas-wrap">
         <canvas id="wall"></canvas>
         <div class="legend">
-          <span class="chip"><span class="dot" style="background:#ff6aa2"></span>想你</span>
-          <span class="chip"><span class="dot" style="background:#6aa8ff"></span>抱抱</span>
-          <span class="chip"><span class="dot" style="background:#7bd88f"></span>親親</span>
-          <span class="chip"><span class="dot" style="background:#f7c84b"></span>靠一下</span>
+          <span class="chip"><span class="dot" style="background:var(--c-think)"></span>想你</span>
+          <span class="chip"><span class="dot" style="background:var(--c-hug)"></span>抱抱</span>
+          <span class="chip"><span class="dot" style="background:var(--c-kiss)"></span>親親</span>
+          <span class="chip"><span class="dot" style="background:var(--c-lean)"></span>靠一下</span>
+          <span class="chip"><span class="dot" style="background:var(--c-rub)"></span>搓搓</span>
         </div>
       </div>
 
-      <div class="section" style="margin-top:12px">
-        <div class="row">
-          <button id="btnOpenRedeem">🎁 全部兌現</button>
-          <div class="card" style="flex:1">
-            <div class="muted">距離上次兌現已過：</div>
-            <div id="since" style="font-weight:800;font-size:18px">—</div>
+      <div class="card">
+        <div style="font-weight:800;margin-bottom:8px">倒數</div>
+        <div class="kpi">
+          <div class="box">
+            <div class="muted">距上次兌現已過</div>
+            <div id="sinceTxt" style="font-size:18px;font-weight:800">--</div>
           </div>
-        </div>
-
-        <div class="card" style="margin-top:10px">
-          <div style="font-weight:800;margin-bottom:6px">目前累計已兌現（全部期間）</div>
-          <div id="totalBox" class="muted">—</div>
-        </div>
-
-        <div class="card" style="margin-top:10px">
-          <div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:8px">
-            <div style="font-weight:800">兌現統計（按日期彙總，可篩選）</div>
-            <div class="filters">
-              <label>年分
-                <select id="yearSelect"></select>
-              </label>
-              <label>月份
-                <select id="monthSelect">
-                  <option value="all">全部</option>
-                  <option value="1">1 月</option>
-                  <option value="2">2 月</option>
-                  <option value="3">3 月</option>
-                  <option value="4">4 月</option>
-                  <option value="5">5 月</option>
-                  <option value="6">6 月</option>
-                  <option value="7">7 月</option>
-                  <option value="8">8 月</option>
-                  <option value="9">9 月</option>
-                  <option value="10">10 月</option>
-                  <option value="11">11 月</option>
-                  <option value="12">12 月</option>
-                </select>
-              </label>
-              <div class="muted" id="periodTotal" style="min-width:220px"></div>
+          <div class="box">
+            <div class="muted">目前累計已兌現（全部期間）</div>
+            <div id="sumAllTxt" style="font-size:14px">
+              想你 <b id="sumThink">0</b>、抱抱 <b id="sumHug">0</b>、親親 <b id="sumKiss">0</b>、靠一下 <b id="sumLean">0</b>、搓搓 <b id="sumRub">0</b>
             </div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>日期</th>
-                <th>想你</th>
-                <th>抱抱</th>
-                <th>親親</th>
-                <th>靠一下</th>
-              </tr>
-            </thead>
-            <tbody id="statsBody"></tbody>
-          </table>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px">
+          <button id="btnRedeemOpen">🎁 全部兌現</button>
+          <button id="btnPostNoteOpen">📝 只是單獨留言</button>
         </div>
 
         <div class="card" style="margin-top:10px">
-          <div style="font-weight:800;margin-bottom:6px">兌現小故事（無限載入）</div>
-          <div id="storiesList" class="muted">尚無紀錄</div>
-          <div style="text-align:center;margin-top:8px">
-            <button id="btnMoreStories" class="hidden">載入更多小故事</button>
+          <div style="font-weight:800;margin-bottom:6px">兌現統計表（可篩選）</div>
+          <div class="toolbar" style="margin-bottom:6px">
+            <label>年 <select id="selYear"></select></label>
+            <label>月 <select id="selMonth"><option value="">全部</option></select></label>
+            <button id="btnExportCsv">⬇️ 匯出CSV</button>
+            <button id="btnExportZip">📦 打包匯出ZIP</button>
+            <span class="muted">本期間合計：想你 <b id="sumPThink">0</b>、抱抱 <b id="sumPHug">0</b>、親親 <b id="sumPKiss">0</b>、靠一下 <b id="sumPLean">0</b>、搓搓 <b id="sumPRub">0</b></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>日期</th><th>想你</th><th>抱抱</th><th>親親</th><th>靠一下</th><th>搓搓</th></tr></thead>
+              <tbody id="tbStats"><tr><td colspan="6" class="muted">讀取中…</td></tr></tbody>
+            </table>
           </div>
         </div>
+
+        <div class="card" style="margin-top:10px">
+          <div style="font-weight:800;margin-bottom:6px">近期兌現小故事</div>
+          <div class="toolbar" style="margin-bottom:6px">
+            <label>排序
+              <select id="selStorySort">
+                <option value="ts_desc">時間：新 → 舊</option>
+                <option value="ts_asc">時間：舊 → 新</option>
+                <option value="total_desc">合計：多 → 少</option>
+                <option value="rub_desc">搓搓：多 → 少</option>
+              </select>
+            </label>
+            <button id="btnColorCfg" class="ghost">🎨 顏色設定</button>
+          </div>
+          <div id="storiesList" class="muted">尚無紀錄</div>
+          <div style="margin-top:8px"><button id="btnMoreStories" class="ghost">載入更多小故事</button></div>
+        </div>
+
+        <div class="card" style="margin-top:10px">
+          <div style="font-weight:800;margin-bottom:6px">只是單獨留言（不影響計數）</div>
+
+          <div class="toolbar" style="margin-bottom:6px">
+            <button id="btnExportNotesCsv">⬇️ 匯出留言CSV</button>
+            <span class="muted">（依上方年／月篩選）</span>
+          </div>
+
+          <div id="notesList" class="muted">尚無留言</div>
+          <div style="margin-top:8px"><button id="btnMoreNotes" class="ghost">載入更多留言</button></div>
+        </div>
+
       </div>
     </div>
   </div>
+</div>
 
-  <!-- 全部兌現對話框：預覽目前數量 + 小故事 -->
-  <dialog id="dlgRedeem">
-    <header>確認全部兌現</header>
-    <div class="body">
-      <div id="redeemPreview" class="card" style="margin-bottom:10px"></div>
-      <label style="display:block;margin-top:6px">小故事（選填）
-        <textarea id="rStory" rows="4" placeholder="想記一下今天怎麼兌現的嗎？"></textarea>
-      </label>
-      <div class="muted" style="margin-top:8px">提示：本次將把牆上目前的所有數量一次兌現並歸零。</div>
-    </div>
-    <div class="actions" style="display:flex;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--br)">
-      <button id="btnCancelRedeem">取消</button>
-      <button id="btnConfirmRedeem">確認兌現</button>
-    </div>
-  </dialog>
+<audio id="meowSound" src="meow.mp3" preload="auto"></audio>
 
-  <script type="module">
-    // ===== 1) 換成你的 Firebase 設定 =====
+<!-- 錯誤面板／主題切換／解鎖（離線先跑） -->
+<script>
+  function showErrorOverlay(err){
+    try{
+      const box = document.createElement('div');
+      box.style.position='fixed'; box.style.left='10px'; box.style.right='10px';
+      box.style.bottom='10px'; box.style.zIndex='9999';
+      box.style.padding='10px 12px'; box.style.border='1px solid var(--br)';
+      box.style.borderRadius='10px'; box.style.background='var(--card)';
+      box.style.color='var(--fg)'; box.style.fontSize='12px';
+      box.style.maxHeight='40vh'; box.style.overflow='auto';
+      box.innerHTML = `<b>載入時發生錯誤</b><br><pre style="white-space:pre-wrap">${(err && (err.stack||err.message||String(err)))}</pre>`;
+      document.body.appendChild(box);
+    }catch{}
+  }
+  window.addEventListener('error', e => showErrorOverlay(e.error || e.message));
+  window.addEventListener('unhandledrejection', e => showErrorOverlay(e.reason || e));
+
+  (function(){ // 主題切換
+    const root = document.documentElement;
+    const btnTheme = document.getElementById('btnTheme');
+    function applyTheme(v){
+      root.setAttribute('data-theme', v==='dark' ? 'dark' : 'light');
+      localStorage.setItem('theme', v);
+      if (typeof fitCanvas === 'function') fitCanvas();
+    }
+    const saved = localStorage.getItem('theme');
+    if (saved) applyTheme(saved);
+    else applyTheme( window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' );
+    btnTheme?.addEventListener('click', ()=> {
+      const next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+      applyTheme(next);
+    });
+  })();
+
+  (function(){ // 問答解鎖（65）
+    const GATE_ANSWER = 65, GATE_TTL_DAYS = 7;
+    const gate = document.getElementById('gate'), main = document.getElementById('main');
+    const inpAge = document.getElementById('inpAge'), btnGate = document.getElementById('btnGate');
+    const gateMsg = document.getElementById('gateMsg'), btnResetGate = document.getElementById('btnResetGate');
+    function toHalfWidthNum(s){ return (s||'').replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0)-0xFEE0)); }
+    function normAge(v){ const s = toHalfWidthNum(String(v||'')).replace(/\s+/g,'').replace(/[^\d]/g,''); const n = parseInt(s,10); return Number.isFinite(n)?n:NaN; }
+    function openGate(){ gate.style.display='block'; main.style.display='none'; }
+    function openMain(){ gate.style.display='none'; main.style.display='block'; }
+    function gateOk(){ const ok = localStorage.getItem('gate-ok')==='1'; if(!ok) return false; if(GATE_TTL_DAYS<=0) return false; const ts=parseInt(localStorage.getItem('gate-ok-ts')||'0',10); return (Date.now()-ts)<GATE_TTL_DAYS*86400000; }
+    function setGateOk(){ localStorage.setItem('gate-ok','1'); localStorage.setItem('gate-ok-ts', String(Date.now())); }
+    btnResetGate.onclick = ()=>{ localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts'); openGate(); };
+    if (new URLSearchParams(location.search).get('reset')==='1'){ localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts'); }
+    btnGate.onclick = ()=>{ const n=normAge(inpAge.value); if(n===GATE_ANSWER){ setGateOk(); gateMsg.textContent=''; openMain(); window.__afterUnlock && window.__afterUnlock(); } else gateMsg.textContent='答錯囉～再試試（提示：65）'; };
+    inpAge.addEventListener('keydown', e=>{ if(e.key==='Enter') btnGate.click(); });
+    if (gateOk()){ openMain(); window.__afterUnlock && window.__afterUnlock(); } else openGate();
+  })();
+</script>
+
+<!-- 解鎖後才載入 Firebase + 主 App -->
+<script>
+  window.__afterUnlock = async function(){
+    try{
 	const firebaseConfig = {
 	  apiKey: "AIzaSyAiJTyJGBZIOQW9KAmBUNbxdBFJFr2ABuc",
 	  authDomain: "aether-karen-board.firebaseapp.com",
@@ -169,324 +235,589 @@
 	  measurementId: "G-Y91SWR8FBQ"
 	};
 
-    // --- Firebase SDK ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment,
-      collection, getDocs, query, orderBy, serverTimestamp, addDoc, limit, startAfter
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+      const [{ initializeApp }, { getAuth, signInAnonymously }, 
+             { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment,
+               serverTimestamp, collection, addDoc, getDocs, query, orderBy, limit, startAfter }] =
+        await Promise.all([
+          import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js')
+        ]);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      try { await signInAnonymously(auth); } 
+      catch(e){ showErrorOverlay('匿名登入失敗：請在 Authentication 啟用 Anonymous\n'+(e && (e.message||e))); }
 
-    // ====================== 小工具/通用函式 ======================
-    const sinceEl = document.getElementById('since');
-    const dlg = document.getElementById('dlgRedeem');
-    const btnOpenRedeem = document.getElementById('btnOpenRedeem');
-    const btnCancelRedeem = document.getElementById('btnCancelRedeem');
-    const btnConfirmRedeem = document.getElementById('btnConfirmRedeem');
-    const preview = document.getElementById('redeemPreview');
-    const meow = document.getElementById('meowSound');
+      function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+      function setCssVar(k,v){ document.documentElement.style.setProperty(k, v); }
+      function tinyHex(s){ const x=(s||'').trim(); if(/^#[0-9a-fA-F]{6}$/.test(x)) return x; if(/^#[0-9a-fA-F]{3}$/.test(x)) return '#'+x[1]+x[1]+x[2]+x[2]+x[3]+x[3]; return '#000000'; }
+      function readColors(){ return {
+        think: cssVar('--c-think')||'#ff6aa2', hug: cssVar('--c-hug')||'#6aa8ff',
+        kiss: cssVar('--c-kiss')||'#7bd88f',  lean: cssVar('--c-lean')||'#f7c84b', rub: cssVar('--c-rub')||'#c18cff'
+      }; }
+      let COLORS = readColors();
 
-    // 對話框相容處理
-    function openModal(){ if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open',''); }
-    function closeModal(){ if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open'); }
-
-    function ymd(d){ const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
-
-    // 倒數計時
-    let sinceTimer=null;
-    function startSinceTimer(last){
-      if (sinceTimer) clearInterval(sinceTimer);
-      function render(){
-        const now = new Date();
-        let s = Math.max(0, Math.floor((now - last)/1000));
-        const days = Math.floor(s/86400); s%=86400; const hrs=Math.floor(s/3600); s%=3600; const mins=Math.floor(s/60); const secs=s%60;
-        const parts = [];
-        if (days>0) parts.push(`${days} 天`);
-        parts.push(`${String(hrs).padStart(2,'0')}小時 ${String(mins).padStart(2,'0')}分 ${String(secs).padStart(2,'0')}秒`);
-        sinceEl.textContent = parts.join(' ');
+      const canvas = document.getElementById('wall');
+      const ctx = canvas.getContext('2d', { alpha:true });
+      function fitCanvas(){
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.floor(rect.width * ratio);
+        canvas.height= Math.floor(rect.height * ratio);
+        ctx.setTransform(ratio,0,0,ratio,0,0);
+        drawAll(lastCounts);
       }
-      render();
-      sinceTimer = setInterval(render,1000);
-    }
-
-    // ====================== 問答解鎖（65） ======================
-    const gate = document.getElementById('gate');
-    const main = document.getElementById('main');
-    const answerInput = document.getElementById('answer');
-    const gateBtn = document.getElementById('btnGate');
-    const gateMsg = document.getElementById('gateMsg');
-
-    function openMain(){ gate.classList.add('hidden'); main.classList.remove('hidden'); }
-
-    function normalizeDigits(s){
-      // 全形數字轉半形
-      return (s||'').replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFF10 + 48));
-    }
-
-    function tryUnlock(){
-      const raw = (answerInput.value||'').trim();
-      const norm = normalizeDigits(raw);
-      const val = parseInt(norm, 10);
-      if (Number.isNaN(val)){ gateMsg.textContent = '請輸入數字'; return; }
-      if (val !== 65){ gateMsg.textContent = '答錯囉～再想想 ❤'; return; }
-      localStorage.setItem('gate-ok','1');
-      openMain();
-    }
-
-    gateBtn.addEventListener('click', tryUnlock);
-    answerInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter') tryUnlock(); });
-
-    if (localStorage.getItem('gate-ok') === '1') openMain();
-
-    // ====================== 正字牆（Firestore 計數） ======================
-    const COUNTS_PATH = { col: 'tally-wall', id: 'global' };
-    const countsRef = doc(db, COUNTS_PATH.col, COUNTS_PATH.id);
-    async function ensureCountsDoc(){
-      const snap = await getDoc(countsRef);
-      if (!snap.exists()) await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, createdAt: Date.now() });
-    }
-
-    const canvas = document.getElementById('wall');
-    const ctx = canvas.getContext('2d', { alpha: true });
-    const COLORS = { think: '#ff6aa2', hug: '#6aa8ff', kiss: '#7bd88f', lean: '#f7c84b' };
-
-    function fitCanvas(){
-      const ratio = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.floor(rect.width * ratio);
-      canvas.height = Math.floor(rect.height * ratio);
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      drawAll(lastCounts);
-    }
-    window.addEventListener('resize', fitCanvas);
-
-    function drawGroup(x, y, color, scale=1){
-      const w = 34*scale, h = 28*scale, gap = 6*scale; const top=y, bottom=y+h;
-      ctx.strokeStyle = color; ctx.lineWidth = 2;
-      for (let i=0;i<4;i++){ const xi = x + i*gap + 2*i; ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke(); }
-      ctx.beginPath(); ctx.moveTo(x-2, bottom-2); ctx.lineTo(x+gap*3+6, top+2);
-      ctx.stroke(); return {w,h};
-    }
-    function drawTallies(startX,startY,color,count,scale=1,maxPerRow=12){
-      let x=startX, y=startY; const groupSize=5, spacingX=40*scale, spacingY=38*scale;
-      const groups=Math.floor(count/groupSize), remain=count%groupSize;
-      for(let i=0;i<groups;i++){ drawGroup(x,y,color,scale); x+=spacingX; if((i+1)%maxPerRow===0){x=startX; y+=spacingY;} }
-      if (remain>0){ const top=y, bottom=y+28*scale; ctx.strokeStyle=color; ctx.lineWidth=2; const gap=6*scale; for(let i=0;i<remain;i++){const xi=x+i*gap+2*i; ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();} }
-    }
-    function layout(){ const rect=canvas.getBoundingClientRect(); const margin=18; const midX=rect.width/2, midY=rect.height/2; return { think:{x:margin,y:margin}, hug:{x:midX+margin/2,y:margin}, kiss:{x:margin,y:midY+margin/2}, lean:{x:midX+margin/2,y:midY+margin/2} } }
-
-    let lastCounts = { think:0, hug:0, kiss:0, lean:0 };
-    function drawAll(c){ if(!canvas.width||!canvas.height) return; const rect=canvas.getBoundingClientRect(); ctx.clearRect(0,0,rect.width,rect.height); ctx.fillStyle="#666"; ctx.font="bold 14px system-ui"; const pos=layout(c); ctx.fillText(`想你 (${c.think||0})`, pos.think.x, pos.think.y-6); ctx.fillText(`想抱抱 (${c.hug||0})`, pos.hug.x, pos.hug.y-6); ctx.fillText(`親親 (${c.kiss||0})`, pos.kiss.x, pos.kiss.y-6); ctx.fillText(`靠一下 (${c.lean||0})`, pos.lean.x, pos.lean.y-6); const scale=1; drawTallies(pos.think.x,pos.think.y,COLORS.think,c.think||0,scale); drawTallies(pos.hug.x,pos.hug.y,COLORS.hug,c.hug||0,scale); drawTallies(pos.kiss.x,pos.kiss.y,COLORS.kiss,c.kiss||0,scale); drawTallies(pos.lean.x,pos.lean.y,COLORS.lean,c.lean||0,scale); }
-
-    // ====================== 兌現（全部兌現 + 歸零） ======================
-    const lastRedeemRef = doc(db,'last-redeem','time');
-
-    btnOpenRedeem.addEventListener('click', async ()=>{
-      await ensureCountsDoc();
-      const snap = await getDoc(countsRef);
-      const c = snap.data() || {think:0,hug:0,kiss:0,lean:0};
-      preview.innerHTML = `目前將兌現：想你 <b>${c.think||0}</b>、抱抱 <b>${c.hug||0}</b>、親親 <b>${c.kiss||0}</b>、靠一下 <b>${c.lean||0}</b>`;
-      openModal();
-    });
-    btnCancelRedeem.addEventListener('click', ()=> closeModal());
-
-    btnConfirmRedeem.addEventListener('click', async ()=>{
-      const originalText = btnConfirmRedeem.textContent;
-      btnConfirmRedeem.disabled = true; btnConfirmRedeem.textContent = '處理中…';
-      try{
-        await ensureCountsDoc();
-        const story = (document.getElementById('rStory').value||'').trim();
-        const snap = await getDoc(countsRef);
-        const c = snap.data() || {think:0,hug:0,kiss:0,lean:0};
-        const sum = (c.think||0)+(c.hug||0)+(c.kiss||0)+(c.lean||0);
-        if (sum===0 && !story){ alert('目前沒有可兌現的數量，請先按幾下或寫一段小故事喔'); return; }
-
-        const dateId = ymd(new Date());
-        await addDoc(collection(db,'redeems'),{ date: dateId, think:c.think||0, hug:c.hug||0, kiss:c.kiss||0, lean:c.lean||0, story, ts: serverTimestamp() });
-        await setDoc(countsRef,{ think:0,hug:0,kiss:0,lean:0 },{ merge:true });
-        await setDoc(lastRedeemRef,{ ts: serverTimestamp() });
-
-        document.getElementById('rStory').value='';
-        closeModal();
-        await loadStats();
-        await loadStoryPage(true);
-      }catch(e){
-        console.error(e);
-        alert('兌現失敗：' + (e?.message || e));
-      }finally{
-        btnConfirmRedeem.disabled = false; btnConfirmRedeem.textContent = originalText;
+      function drawGroup(x,y,color,scale=1){
+        const h=28*scale, gap=6*scale, top=y, bottom=y+h;
+        ctx.strokeStyle=color; ctx.lineWidth=2;
+        for(let i=0;i<4;i++){ const xi=x+i*gap+2*i; ctx.beginPath(); ctx.moveTo(xi,top); ctx.lineTo(xi,bottom); ctx.stroke(); }
+        ctx.beginPath(); ctx.moveTo(x-2,bottom-2); ctx.lineTo(x+gap*3+6, top+2); ctx.stroke();
       }
-    });
-
-    // 倒數：監聽最後兌現時間
-    onSnapshot(lastRedeemRef,(snap)=>{
-      const d = snap.data();
-      const ts = d?.ts?.toDate?.();
-      if (ts) startSinceTimer(ts);
-    });
-
-    // ====================== 統計（依日期彙總 + 無限小故事 + 圖表＋月份/年分） ======================
-    const statsBody = document.getElementById('statsBody');
-    const storiesList = document.getElementById('storiesList');
-    const totalBox = document.getElementById('totalBox');
-    const btnMoreStories = document.getElementById('btnMoreStories');
-    const periodTotal = document.getElementById('periodTotal');
-    const btnResetGate = document.getElementById('btnResetGate');
-    const yearSelect = document.getElementById('yearSelect');
-    const monthSelect = document.getElementById('monthSelect');
-    
-    let masterEntries = []; // 全部兌現（依日期聚合後的陣列）
-    let masterTotals = {think:0,hug:0,kiss:0,lean:0};
-
-    function filterBySelection(){
-      const year = parseInt(yearSelect.value,10);
-      const mval = monthSelect.value; // 'all' 或 1..12
-      const filtered = masterEntries.filter(e=>{
-        const [y,mm,dd] = e.date.split('-').map(Number);
-        if (y !== year) return false;
-        if (mval !== 'all' && mm !== parseInt(mval,10)) return false;
-        return true;
-      });
-      // 表格
-      if (filtered.length===0){
-        statsBody.innerHTML = '<tr><td colspan="5" class="muted">此期間無兌現紀錄</td></tr>';
-      } else {
-        statsBody.innerHTML = filtered.map(v=>`<tr><td>${v.date}</td><td>${v.think}</td><td>${v.hug}</td><td>${v.kiss}</td><td>${v.lean}</td></tr>`).join('');
-      }
-      // 圖表已移除
-      // 期間累計
-      const pt = filtered.reduce((acc,v)=>{ acc.think+=v.think||0;acc.hug+=v.hug||0;acc.kiss+=v.kiss||0;acc.lean+=v.lean||0; return acc; },{think:0,hug:0,kiss:0,lean:0});
-      periodTotal.textContent = `本期間累計：想你 ${pt.think}、抱抱 ${pt.hug}、親親 ${pt.kiss}、靠一下 ${pt.lean}`;
-    }
-
-    function populateYearOptions(){
-      if (!yearSelect) return;
-      const years = Array.from(new Set(masterEntries.map(e=> Number(e.date.slice(0,4))))).sort((a,b)=>a-b);
-      yearSelect.innerHTML = years.map(y=>`<option value="${y}">${y} 年</option>`).join('');
-      const nowY = new Date().getFullYear();
-      if (years.includes(nowY)) yearSelect.value = String(nowY); else yearSelect.value = String(years[years.length-1]||nowY);
-    }
-
-    async function loadStats(){
-      // 牆即時
-      onSnapshot(countsRef,(snap)=>{
-        const d=snap.data()||{}; lastCounts = { think:d.think||0, hug:d.hug||0, kiss:d.kiss||0, lean:d.lean||0 }; fitCanvas();
-      });
-
-      statsBody.innerHTML = '<tr><td colspan="5" class="muted">讀取中…</td></tr>';
-      if (storiesList) storiesList.textContent = '讀取中…';
-
-      const q = query(collection(db,'redeems'), orderBy('date','asc'));
-      const snap = await getDocs(q);
-      const byDate = new Map();
-      masterTotals = { think:0, hug:0, kiss:0, lean:0 };
-      snap.forEach(docSnap=>{
-        const d = docSnap.data()||{};
-        const key = d.date || '未知日期';
-        const agg = byDate.get(key) || {think:0,hug:0,kiss:0,lean:0};
-        agg.think += d.think||0; agg.hug += d.hug||0; agg.kiss += d.kiss||0; agg.lean += d.lean||0;
-        byDate.set(key, agg);
-        masterTotals.think += d.think||0; masterTotals.hug += d.hug||0; masterTotals.kiss += d.kiss||0; masterTotals.lean += d.lean||0;
-      });
-
-      // 全期間累計顯示
-      if (totalBox){ totalBox.textContent = `想你 ${masterTotals.think}、抱抱 ${masterTotals.hug}、親親 ${masterTotals.kiss}、靠一下 ${masterTotals.lean}`; }
-
-      // 轉成排序陣列
-      masterEntries = Array.from(byDate.entries()).map(([date,v])=>({date,...v}));
-      masterEntries.sort((a,b)=> a.date.localeCompare(b.date));
-
-      populateYearOptions();
-      filterBySelection();
-
-      // 小故事：先載入第一頁
-      await loadStoryPage(true);
-    }
-
-    // 年/月變更 → 重新套用篩選
-    document.addEventListener('change', (e)=>{
-      if (e.target===yearSelect || e.target===monthSelect) filterBySelection();
-    });
-
-    // ========= 小故事無限載入 =========
-    let storyCursor = null; const STORY_PAGE = 20;
-    async function loadStoryPage(reset=false){
-      try{
-        if (!storiesList || !btnMoreStories) return;
-        if (reset){ storiesList.innerHTML = ''; storyCursor = null; btnMoreStories.classList.add('hidden'); }
-        let qy = query(collection(db,'redeems'), orderBy('ts','desc'), limit(STORY_PAGE));
-        if (storyCursor) qy = query(collection(db,'redeems'), orderBy('ts','desc'), startAfter(storyCursor), limit(STORY_PAGE));
-        const snap = await getDocs(qy);
-        if (snap.empty){ if (reset) storiesList.textContent = '尚無紀錄'; return; }
-        const docs = snap.docs; storyCursor = docs[docs.length-1];
-        const html = docs.map(docSnap=>{
-          const d = docSnap.data()||{};
-          const dt = d.ts?.toDate?.() || new Date();
-          const y = dt.getFullYear(); const m=String(dt.getMonth()+1).padStart(2,'0'); const dd=String(dt.getDate()).padStart(2,'0');
-          const hh=String(dt.getHours()).padStart(2,'0'); const mm=String(dt.getMinutes()).padStart(2,'0');
-          const story = (d.story||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          return `<div style="margin:6px 0"><strong>${y}-${m}-${dd} ${hh}:${mm}</strong>（想你${d.think||0} 抱抱${d.hug||0} 親親${d.kiss||0} 靠一下${d.lean||0}）<br>${story}</div>`;
-        }).join('');
-        storiesList.insertAdjacentHTML('beforeend', html);
-        if (docs.length === STORY_PAGE) btnMoreStories.classList.remove('hidden');
-        else btnMoreStories.classList.add('hidden');
-      }catch(err){ storiesList.textContent = '讀取失敗，請稍後再試'; console.error(err); }
-    }
-
-    if (document.getElementById('btnMoreStories')){
-      btnMoreStories.addEventListener('click', ()=> loadStoryPage(false));
-    }
-
-    // 重新驗證按鈕（清除 gate-ok）
-    if (btnResetGate){
-      btnResetGate.addEventListener('click', ()=>{
-        localStorage.removeItem('gate-ok');
-        const g = document.getElementById('gate');
-        const m = document.getElementById('main');
-        if (g && m){ m.classList.add('hidden'); g.classList.remove('hidden'); }
-        const msg = document.getElementById('gateMsg');
-        if (msg) msg.textContent = '已重置，請重新回答：我們約定好幾歲？';
-        const ans = document.getElementById('answer'); if (ans) ans.value='';
-      });
-    }
-
-    // 支援網址加上 ?reset=1 強制顯示驗證
-    try{ const u = new URL(window.location.href); if (u.searchParams.get('reset')==='1'){ localStorage.removeItem('gate-ok'); } }catch(_){ }
-
-    // ====================== 初始化（先匿名登入，成功後再載入資料） ======================
-    signInAnonymously(auth).catch((e)=>{
-      console.error('匿名登入失敗', e);
-      const m = document.getElementById('gateMsg');
-      if (m) m.textContent = '匿名登入失敗：' + (e?.code || e?.message || '未知錯誤');
-      alert('匿名登入失敗，請稍後再試或檢查 Firebase Authentication 是否已啟用 Anonymous。');
-    });
-
-    onAuthStateChanged(auth, async (user)=>{
-      if (!user) return;
-      try{
-        await ensureCountsDoc();
-        await loadStats();
-      }catch(e){ console.error(e); }
-    });
-
-    // ====================== 按鈕計數 ======================
-    document.querySelectorAll('button[data-key]').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        // 播放喵喵音效（軟綿綿）
-        try{ if (meow){ meow.currentTime = 0; await meow.play(); } }catch(_){ /* 某些瀏覽器需使用者互動後才可播放，可忽略錯誤 */ }
-        try{
-          await updateDoc(countsRef, { [btn.dataset.key]: increment(1) });
-        }catch(e){
-          await ensureCountsDoc();
-          await updateDoc(countsRef, { [btn.dataset.key]: increment(1) });
+      function drawTallies(startX,startY,color,count,scale=1){
+        const spacingX=40*scale, spacingY=38*scale;
+        const rect = canvas.getBoundingClientRect();
+        const usable = Math.max(0, rect.width - startX - 20);
+        const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+        let x=startX, y=startY;
+        const groups=Math.floor(count/5), remain=count%5;
+        for(let i=0;i<groups;i++){
+          drawGroup(x,y,color,scale); x+=spacingX;
+          if((i+1)%maxPerRow===0){ x=startX; y+=spacingY; }
         }
-      });
-    });
+        if(remain>0){
+          const top=y, bottom=y+28*scale, gap=6*scale;
+          ctx.strokeStyle=color; ctx.lineWidth=2;
+          for(let i=0;i<remain;i++){ const xi=x+i*gap+2*i; ctx.beginPath(); ctx.moveTo(xi,top); ctx.lineTo(xi,bottom); ctx.stroke(); }
+        }
+      }
+      function layout(){
+        const rect = canvas.getBoundingClientRect();
+        const margin=18, colGap=rect.width/3, rowGap=rect.height/2.2;
+        return {
+          think:{x:margin, y:margin}, hug:{x:colGap+margin/2, y:margin}, kiss:{x:colGap*2+margin/2, y:margin},
+          lean:{x:margin, y:rowGap},  rub:{x:colGap+margin/2, y:rowGap}
+        };
+      }
+      let lastCounts={think:0,hug:0,kiss:0,lean:0,rub:0};
+      function drawAll(c){
+        if(!canvas.width || !canvas.height) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.clearRect(0,0,rect.width,rect.height);
+        const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                        || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+        ctx.fillStyle = fgColor;
+        ctx.font = "bold 14px system-ui";
+        const pos = layout();
+        ctx.fillText(`想你 (${c.think||0})`, pos.think.x, pos.think.y-6);
+        ctx.fillText(`想抱抱 (${c.hug||0})`, pos.hug.x, pos.hug.y-6);
+        ctx.fillText(`親親 (${c.kiss||0})`, pos.kiss.x, pos.kiss.y-6);
+        ctx.fillText(`靠一下 (${c.lean||0})`, pos.lean.x, pos.lean.y-6);
+        ctx.fillText(`搓搓 (${c.rub||0})`, pos.rub.x, pos.rub.y-6);
+        const s=1;
+        drawTallies(pos.think.x,pos.think.y,COLORS.think,c.think||0,s);
+        drawTallies(pos.hug.x,  pos.hug.y, COLORS.hug,  c.hug||0, s);
+        drawTallies(pos.kiss.x, pos.kiss.y, COLORS.kiss, c.kiss||0, s);
+        drawTallies(pos.lean.x, pos.lean.y, COLORS.lean, c.lean||0, s);
+        drawTallies(pos.rub.x,  pos.rub.y, COLORS.rub,  c.rub||0, s);
+      }
+      window.addEventListener('resize', fitCanvas);
 
-  </script>
+      /* 牆面資料 */
+      const countsRef = doc(db, 'tally-wall', 'global');
+      async function ensureCountsDoc(){
+        const s = await getDoc(countsRef);
+        if (!s.exists()){
+          await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, rub:0, createdAt: Date.now() });
+        }
+      }
+      onSnapshot(countsRef, (snap)=>{
+        const d = snap.data()||{};
+        lastCounts = { think:d.think||0, hug:d.hug||0, kiss:d.kiss||0, lean:d.lean||0, rub:d.rub||0 };
+        fitCanvas();
+      });
+
+      /* 點擊加點數＋喵喵 */
+      const meow = document.getElementById('meowSound');
+      document.querySelectorAll('.action-btn').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          try{
+            await ensureCountsDoc();
+            await updateDoc(countsRef, { [btn.dataset.key]: increment(1) });
+            if (meow){ meow.currentTime=0; meow.play().catch(()=>{}); }
+          }catch(e){
+            try{ await ensureCountsDoc(); await updateDoc(countsRef, { [btn.dataset.key]: increment(1) }); }
+            catch(err){ showErrorOverlay(err); }
+          }
+        });
+      });
+
+      /* 兌現（全部兌現＋小故事） */
+      const btnRedeemOpen = document.getElementById('btnRedeemOpen');
+      function showDialog(innerHTML, binder){
+        const dlg = document.createElement('dialog');
+        dlg.style.background='var(--card)'; dlg.style.color='var(--fg)';
+        dlg.style.border='1px solid var(--br)'; dlg.style.borderRadius='12px';
+        dlg.style.padding='14px'; dlg.innerHTML = innerHTML;
+        document.body.appendChild(dlg);
+        try{ dlg.showModal(); }catch{ dlg.setAttribute('open','open'); }
+        binder?.(dlg); return dlg;
+      }
+      function closeDialog(dlg){ if(!dlg) return; if (typeof dlg.close==='function'){ try{ dlg.close(); }catch{} } dlg.remove(); }
+
+      btnRedeemOpen.onclick = async ()=>{
+        await ensureCountsDoc(); const s = await getDoc(countsRef); const c = s.data()||{};
+        const html = `
+          <div style="font-weight:800;margin-bottom:8px">確認兌現</div>
+          <div class="muted" style="margin-bottom:6px">會把牆面目前數量全部兌現並歸零：</div>
+          <div style="margin-bottom:8px">
+            想你 <b>${c.think||0}</b>、抱抱 <b>${c.hug||0}</b>、親親 <b>${c.kiss||0}</b>、
+            靠一下 <b>${c.lean||0}</b>、搓搓 <b>${c.rub||0}</b>
+          </div>
+          <label style="display:block;margin-top:8px">小故事（選填）
+            <textarea id="rStory" rows="4" placeholder="今天我們怎麼兌現的？"></textarea>
+          </label>
+          <div class="toolbar" style="margin-top:10px;justify-content:flex-end">
+            <button id="btnRedeemConfirm">確認兌現</button>
+            <button id="btnRedeemCancel">取消</button>
+          </div>`;
+        const dlg = showDialog(html, (d)=>{
+          d.querySelector('#btnRedeemCancel').onclick = ()=> closeDialog(d);
+          d.querySelector('#btnRedeemConfirm').onclick = async ()=>{
+            const okBtn = d.querySelector('#btnRedeemConfirm');
+            okBtn.disabled=true; okBtn.textContent='處理中…';
+            try{
+              const snap = await getDoc(countsRef);
+              const cc = snap.data()||{think:0,hug:0,kiss:0,lean:0,rub:0};
+              const t = new Date();
+              const dateId = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+              const story = (d.querySelector('#rStory').value||'').trim();
+
+              await addDoc(collection(db,'redeems'), {
+                date: dateId, think: cc.think||0, hug: cc.hug||0, kiss: cc.kiss||0, lean: cc.lean||0, rub: cc.rub||0,
+                story, ts: serverTimestamp()
+              });
+              await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, rub:0 }, { merge:true });
+              await setDoc(doc(db,'last-redeem','time'), { ts: serverTimestamp() });
+
+              closeDialog(d);
+              loadSince(); loadSumAll(); loadStatsTable(); loadStories(true);
+            }catch(err){ showErrorOverlay(err); okBtn.disabled=false; okBtn.textContent='確認兌現'; }
+          };
+        });
+      };
+
+      /* 倒數 */
+      const sinceTxt = document.getElementById('sinceTxt');
+      async function loadSince(){
+        try{
+          const s = await getDoc(doc(db,'last-redeem','time'));
+          const t = s.exists() && s.data().ts?.toDate ? s.data().ts.toDate() : null;
+          if (!t){ sinceTxt.textContent='尚未兌現'; return; }
+          function tick(){
+            const diff = Date.now() - t.getTime();
+            const days = Math.floor(diff/86400000);
+            const hh = String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+            const mm = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+            const ss = String(Math.floor(diff%60000/1000)).padStart(2,'0');
+            sinceTxt.textContent = `${days} 天 ${hh}:${mm}:${ss}`;
+          }
+          tick(); clearInterval(loadSince._timer); loadSince._timer = setInterval(tick,1000);
+        }catch{ sinceTxt.textContent='讀取失敗'; }
+      }
+
+      /* 累計（全部期間） */
+      const sumThink=document.getElementById('sumThink');
+      const sumHug=document.getElementById('sumHug');
+      const sumKiss=document.getElementById('sumKiss');
+      const sumLean=document.getElementById('sumLean');
+      const sumRub=document.getElementById('sumRub');
+      async function loadSumAll(){
+        const snap = await getDocs(query(collection(db,'redeems'), orderBy('ts','desc')));
+        let T=0,H=0,K=0,L=0,R=0;
+        snap.forEach(d=>{ const x=d.data()||{}; T+=x.think||0; H+=x.hug||0; K+=x.kiss||0; L+=x.lean||0; R+=x.rub||0; });
+        sumThink.textContent=T; sumHug.textContent=H; sumKiss.textContent=K; sumLean.textContent=L; sumRub.textContent=R;
+      }
+
+      /* 統計表（年/月） */
+      const selYear = document.getElementById('selYear');
+      const selMonth= document.getElementById('selMonth');
+      const tbStats = document.getElementById('tbStats');
+      const sumPThink=document.getElementById('sumPThink');
+      const sumPHug=document.getElementById('sumPHug');
+      const sumPKiss=document.getElementById('sumPKiss');
+      const sumPLean=document.getElementById('sumPLean');
+      const sumPRub=document.getElementById('sumPRub');
+
+      async function loadStatsTable(){
+        tbStats.innerHTML = `<tr><td colspan="6" class="muted">讀取中…</td></tr>`;
+        const yVal = selYear.value, mVal = selMonth.value;
+        const qy = query(collection(db,'redeems'), orderBy('date','asc'));
+        const snap = await getDocs(qy);
+        const rows = []; let sT=0,sH=0,sK=0,sL=0,sR=0;
+        snap.forEach(ds=>{
+          const d = ds.data()||{}; if (!d.date) return;
+          if (yVal && !d.date.startsWith(yVal)) return;
+          if (mVal && d.date.slice(5,7)!==mVal) return;
+          rows.push(`<tr><td>${d.date}</td><td>${d.think||0}</td><td>${d.hug||0}</td><td>${d.kiss||0}</td><td>${d.lean||0}</td><td>${d.rub||0}</td></tr>`);
+          sT+=d.think||0; sH+=d.hug||0; sK+=d.kiss||0; sL+=d.lean||0; sR+=d.rub||0;
+        });
+        tbStats.innerHTML = rows.length ? rows.join('') : `<tr><td colspan="6" class="muted">本期間沒有資料</td></tr>`;
+        sumPThink.textContent=sT; sumPHug.textContent=sH; sumPKiss.textContent=sK; sumPLean.textContent=sL; sumPRub.textContent=sR;
+      }
+      (async function initYearMonth(){
+        const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
+        const years = new Set(); const months = new Set([""]);
+        snap.forEach(d=>{ const s=(d.data()?.date||""); if (s.length>=7){ years.add(s.slice(0,4)); months.add(s.slice(5,7)); } });
+        selYear.innerHTML = `<option value="">全部</option>` + Array.from(years).sort().map(y=>`<option value="${y}">${y}</option>`).join('');
+        selMonth.innerHTML = `<option value="">全部</option>` + Array.from(months).filter(Boolean).sort().map(m=>`<option value="${m}">${m}</option>`).join('');
+        selYear.onchange=loadStatsTable; selMonth.onchange=loadStatsTable;
+        loadStatsTable();
+      })();
+
+      /* ===== 匯出 CSV（兌現、留言） & 打包 ZIP ===== */
+      // 共用 CSV 轉義
+      function csvEscape(s){ const t=String(s??''); return /[",\r\n]/.test(t) ? `"${t.replace(/"/g,'""')}"` : t; }
+      function fmtDT(d){
+        const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+        const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0'), ss=String(d.getSeconds()).padStart(2,'0');
+        return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
+      }
+
+      // 兌現 CSV（依目前年/月）
+      async function exportCsvCurrentRange(){
+        const yVal = selYear.value, mVal = selMonth.value;
+        const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
+        const rows=[]; let sT=0,sH=0,sK=0,sL=0,sR=0;
+        snap.forEach(ds=>{
+          const d=ds.data()||{}; if(!d.date) return;
+          if (yVal && !d.date.startsWith(yVal)) return;
+          if (mVal && d.date.slice(5,7)!==mVal) return;
+          const think=d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0;
+          rows.push([d.date, think, hug, kiss, lean, rub, d.story||'']);
+          sT+=think; sH+=hug; sK+=kiss; sL+=lean; sR+=rub;
+        });
+        if(!rows.length){ alert('本期間沒有資料可匯出'); return; }
+        const header=['日期','想你','抱抱','親親','靠一下','搓搓','小故事'];
+        const lines=[ header.map(csvEscape).join(',') ];
+        for(const r of rows) lines.push(r.map(csvEscape).join(','));
+        lines.push(['合計',sT,sH,sK,sL,sR,''].map(csvEscape).join(','));
+        const csv = '\uFEFF' + lines.join('\r\n');
+        const now = new Date();
+        const ym = yVal ? (mVal ? `${yVal}-${mVal}` : yVal) : '全部';
+        const fname = `redeems-${ym}-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.csv`;
+        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}), url = URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+      }
+      document.getElementById('btnExportCsv')?.addEventListener('click', exportCsvCurrentRange);
+
+      // 留言 CSV（依目前年/月；用 ts）
+      async function exportNotesCsvCurrentRange(){
+        const yVal = selYear.value, mVal = selMonth.value;
+        const snap = await getDocs(query(collection(db,'notes'), orderBy('ts','asc')));
+        const header=['日期時間','留言內容'];
+        const lines=[ header.map(csvEscape).join(',') ];
+        let count=0;
+        snap.forEach(ds=>{
+          const d=ds.data()||{}; const dt=d.ts?.toDate?.(); if(!dt) return;
+          const y=String(dt.getFullYear()), m=String(dt.getMonth()+1).padStart(2,'0');
+          if (yVal && y!==yVal) return;
+          if (mVal && m!==mVal) return;
+          lines.push([ fmtDT(dt), d.story||'' ].map(csvEscape).join(','));
+          count++;
+        });
+        if (count===0){ alert('本期間沒有留言可匯出'); return; }
+        lines.push(['總筆數', count, ''].map(csvEscape).join(','));
+        const csv = '\uFEFF' + lines.join('\r\n');
+        const now = new Date();
+        const ym = yVal ? (mVal ? `${yVal}-${mVal}` : yVal) : '全部';
+        const fname = `notes-${ym}-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.csv`;
+        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}), url = URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+      }
+      document.getElementById('btnExportNotesCsv')?.addEventListener('click', exportNotesCsvCurrentRange);
+
+      /* ===== 打包 ZIP（兌現 CSV + 留言 CSV + meta.json） ===== */
+      // 產生兌現 CSV 內容
+      async function buildRedeemsCsv(yVal, mVal){
+        const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
+        const header=['日期','想你','抱抱','親親','靠一下','搓搓','小故事'];
+        const lines=[ header.map(csvEscape).join(',') ];
+        let sT=0,sH=0,sK=0,sL=0,sR=0;
+        snap.forEach(ds=>{
+          const d=ds.data()||{}; if(!d.date) return;
+          if (yVal && !d.date.startsWith(yVal)) return;
+          if (mVal && d.date.slice(5,7)!==mVal) return;
+          const think=d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0;
+          lines.push([d.date, think, hug, kiss, lean, rub, d.story||''].map(csvEscape).join(','));
+          sT+=think; sH+=hug; sK+=kiss; sL+=lean; sR+=rub;
+        });
+        if (lines.length===1) return null;
+        lines.push(['合計', sT, sH, sK, sL, sR, ''].map(csvEscape).join(','));
+        return '\uFEFF' + lines.join('\r\n');
+      }
+      // 產生留言 CSV 內容
+      async function buildNotesCsv(yVal, mVal){
+        const snap = await getDocs(query(collection(db,'notes'), orderBy('ts','asc')));
+        const header=['日期時間','留言內容'];
+        const lines=[ header.map(csvEscape).join(',') ];
+        let count=0;
+        snap.forEach(ds=>{
+          const d=ds.data()||{}; const dt=d.ts?.toDate?.(); if(!dt) return;
+          const y=String(dt.getFullYear()), m=String(dt.getMonth()+1).padStart(2,'0');
+          if (yVal && y!==yVal) return;
+          if (mVal && m!==mVal) return;
+          lines.push([ fmtDT(dt), d.story||'' ].map(csvEscape).join(','));
+          count++;
+        });
+        if (count===0) return null;
+        lines.push(['總筆數', count, ''].map(csvEscape).join(','));
+        return '\uFEFF' + lines.join('\r\n');
+      }
+      // 收集設定 → meta.json
+      function buildMetaJson(){
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+        const colorPrefs = (()=>{ try{ return JSON.parse(localStorage.getItem('colorPrefs')||'{}'); }catch{ return {}; }})();
+        const counts = (typeof lastCounts==='object' && lastCounts) ? lastCounts : {};
+        const exportedAt = new Date().toISOString();
+        return JSON.stringify({ theme, colorPrefs, counts, exportedAt }, null, 2);
+      }
+      // 動態載入 JSZip（只載一次）
+      let __zipReady = null;
+      function loadJSZip(){
+        if (__zipReady) return __zipReady;
+        __zipReady = new Promise((resolve, reject)=>{
+          if (window.JSZip) return resolve(window.JSZip);
+          const s=document.createElement('script');
+          s.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload=()=> resolve(window.JSZip);
+          s.onerror=()=> reject(new Error('JSZip 載入失敗'));
+          document.head.appendChild(s);
+        });
+        return __zipReady;
+      }
+      // 主流程：打包 ZIP
+      async function exportZipAll(){
+        try{
+          const yVal = selYear.value;
+          const mVal = selMonth.value;
+          const ymLabel = yVal ? (mVal ? `${yVal}-${mVal}` : yVal) : '全部';
+          const [redeemsCsv, notesCsv] = await Promise.all([
+            buildRedeemsCsv(yVal, mVal),
+            buildNotesCsv(yVal, mVal)
+          ]);
+          if (!redeemsCsv && !notesCsv){
+            alert('本期間沒有任何資料可匯出');
+            return;
+          }
+          const meta = buildMetaJson();
+          const JSZip = await loadJSZip();
+          const zip = new JSZip();
+          if (redeemsCsv) zip.file(`redeems-${ymLabel}.csv`, redeemsCsv);
+          if (notesCsv)   zip.file(`notes-${ymLabel}.csv`, notesCsv);
+          zip.file('meta.json', meta);
+          const blob = await zip.generateAsync({ type:'blob' });
+          const now = new Date();
+          const fname = `tallywall-${ymLabel}-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.zip`;
+          const url = URL.createObjectURL(blob);
+          const a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click();
+          setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+        }catch(err){ showErrorOverlay(err); }
+      }
+      document.getElementById('btnExportZip')?.addEventListener('click', exportZipAll);
+
+      /* 近期兌現小故事（排序＋去重） */
+      const storiesList = document.getElementById('storiesList');
+      const btnMoreStories = document.getElementById('btnMoreStories');
+      const selStorySort = document.getElementById('selStorySort');
+      let storiesCursor = null; let storiesBuffer = []; let storiesSeen = new Set();
+      function storyRowHTML(d){
+        const t = d.ts?.toDate?.()||new Date();
+        const dt = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+        const safe = (d.story||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const think = d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0;
+        return `<div style="margin:8px 0;padding:6px 8px;border:1px solid var(--br);border-radius:10px;background:var(--card)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <strong>${dt}</strong>
+            <span>
+              <span class="badge think">想你 ${think}</span>
+              <span class="badge hug">抱抱 ${hug}</span>
+              <span class="badge kiss">親親 ${kiss}</span>
+              <span class="badge lean">靠一下 ${lean}</span>
+              <span class="badge rub">搓搓 ${rub}</span>
+            </span>
+          </div>${safe ? `<div style="margin-top:6px">${safe}</div>` : ``}
+        </div>`;
+      }
+      function applyStorySort(arr, mode){
+        const a=[...arr];
+        if (mode==='ts_asc') a.sort((x,y)=> (x.ts?.toMillis?.()||0) - (y.ts?.toMillis?.()||0));
+        else if (mode==='total_desc') a.sort((x,y)=> ((y.think||0)+(y.hug||0)+(y.kiss||0)+(y.lean||0)+(y.rub||0)) - ((x.think||0)+(x.hug||0)+(x.kiss||0)+(x.lean||0)+(x.rub||0)));
+        else if (mode==='rub_desc') a.sort((x,y)=> (y.rub||0) - (x.rub||0));
+        else a.sort((x,y)=> (y.ts?.toMillis?.()||0) - (x.ts?.toMillis?.()||0)); // ts_desc
+        return a;
+      }
+      async function loadStories(reset=false){
+        if (reset){ storiesCursor=null; storiesBuffer=[]; storiesSeen.clear(); storiesList.innerHTML=''; }
+        let qy = query(collection(db,'redeems'), orderBy('ts','desc'), limit(20));
+        if (storiesCursor){ qy = query(collection(db,'redeems'), orderBy('ts','desc'), startAfter(storiesCursor), limit(20)); }
+        const snap = await getDocs(qy);
+        if (snap.empty && !storiesCursor){ storiesList.innerHTML = `<div class="muted">尚無紀錄</div>`; return; }
+        let last=null;
+        snap.forEach(ds=>{
+          const id = ds.id;
+          if (storiesSeen.has(id)) return;
+          const data = ds.data()||{}; data.__id=id;
+          storiesBuffer.push(data); storiesSeen.add(id); last = ds;
+        });
+        if (last) storiesCursor = last;
+        storiesList.innerHTML = applyStorySort(storiesBuffer, selStorySort?.value || 'ts_desc').map(storyRowHTML).join('');
+      }
+      btnMoreStories.onclick = ()=> loadStories(false);
+      selStorySort?.addEventListener('change', ()=> loadStories(true));
+
+      /* 顏色客製 */
+      document.getElementById('btnColorCfg').addEventListener('click', ()=>{
+        const cur = { think: cssVar('--c-think'), hug: cssVar('--c-hug'), kiss: cssVar('--c-kiss'), lean: cssVar('--c-lean'), rub: cssVar('--c-rub') };
+        const html = `<div style="font-weight:800;margin-bottom:8px">顏色設定</div>
+          <div class="toolbar" style="flex-direction:column;gap:10px">
+            <label>想你 <input id="colThink" type="color" value="${tinyHex(cur.think)}"></label>
+            <label>抱抱 <input id="colHug"   type="color" value="${tinyHex(cur.hug)}"></label>
+            <label>親親 <input id="colKiss"  type="color" value="${tinyHex(cur.kiss)}"></label>
+            <label>靠一下 <input id="colLean" type="color" value="${tinyHex(cur.lean)}"></label>
+            <label>搓搓 <input id="colRub"   type="color" value="${tinyHex(cur.rub)}"></label>
+          </div>
+          <div class="toolbar" style="margin-top:10px;justify-content:flex-end">
+            <button id="btnColorSave">儲存</button>
+            <button id="btnColorCancel">取消</button>
+          </div>`;
+        const dlg = showDialog(html, (d)=>{
+          d.querySelector('#btnColorCancel').onclick = ()=> closeDialog(d);
+          d.querySelector('#btnColorSave').onclick = ()=>{
+            const vals = {
+              '--c-think': d.querySelector('#colThink').value,
+              '--c-hug':   d.querySelector('#colHug').value,
+              '--c-kiss':  d.querySelector('#colKiss').value,
+              '--c-lean':  d.querySelector('#colLean').value,
+              '--c-rub':   d.querySelector('#colRub').value
+            };
+            const curr = JSON.parse(localStorage.getItem('colorPrefs')||'{}');
+            localStorage.setItem('colorPrefs', JSON.stringify({...curr, ...vals}));
+            for(const [k,v] of Object.entries(vals)){ setCssVar(k, v); }
+            COLORS = readColors(); drawAll(lastCounts);
+            storiesList.innerHTML = applyStorySort(storiesBuffer, document.getElementById('selStorySort').value).map(storyRowHTML).join('');
+            closeDialog(d);
+          };
+        });
+      });
+      (function loadColorPrefs(){
+        try{
+          const raw = localStorage.getItem('colorPrefs'); if(!raw) return;
+          const obj = JSON.parse(raw)||{}; for(const [k,v] of Object.entries(obj)){ setCssVar(k, v); }
+          COLORS = readColors(); drawAll(lastCounts);
+        }catch{}
+      })();
+
+      /* 只是單獨留言（強化版：<dialog> fallback、去重、提示） */
+      const notesList = document.getElementById('notesList');
+      const btnMoreNotes = document.getElementById('btnMoreNotes');
+      let notesCursor = null; let notesSeen = new Set();
+
+      (function setupNotesPost(){
+        const btnPostNoteOpen = document.getElementById('btnPostNoteOpen');
+        if (!btnPostNoteOpen){ console.warn('#btnPostNoteOpen 找不到'); return; }
+
+        function closeDialog(dlg){ if(!dlg) return; if (typeof dlg.close==='function'){ try{ dlg.close(); }catch{} } dlg.remove(); }
+        function toast(msg){
+          const t=document.createElement('div');
+          t.textContent=msg; t.style.position='fixed'; t.style.left='50%'; t.style.top='16px'; t.style.transform='translateX(-50%)';
+          t.style.padding='8px 12px'; t.style.background='var(--card)'; t.style.color='var(--fg)';
+          t.style.border='1px solid var(--br)'; t.style.borderRadius='10px'; t.style.zIndex='9999';
+          document.body.appendChild(t); setTimeout(()=> t.remove(), 1600);
+        }
+
+        async function submitNote(story, dlg){
+          try{
+            await addDoc(collection(db,'notes'), { story: story.trim(), ts: serverTimestamp() });
+            if (dlg) closeDialog(dlg);
+            loadNotes(true);
+            toast('留言已送出！');
+          }catch(err){
+            showErrorOverlay(err);
+            if (dlg){ const btn=dlg.querySelector('#btnPostNoteConfirm'); if(btn){ btn.disabled=false; btn.textContent='送出'; } }
+          }
+        }
+
+        function openNoteDialog(){
+          const supportsDialog = (typeof HTMLDialogElement !== 'undefined');
+          if (!supportsDialog) {
+            const text = window.prompt('寫點想說的話吧（不影響計數）');
+            if (text && text.trim()) submitNote(text);
+            return;
+          }
+          const html = `<div style="font-weight:800;margin-bottom:8px">只是單獨留言</div>
+            <label>小故事 / 留言
+              <textarea id="noteStory" rows="4" placeholder="寫點什麼給彼此吧～不會影響計數或兌現"></textarea>
+            </label>
+            <div class="toolbar" style="margin-top:10px;justify-content:flex-end">
+              <button id="btnPostNoteConfirm">送出</button>
+              <button id="btnPostNoteCancel">取消</button>
+            </div>`;
+          const dlg = document.createElement('dialog');
+          dlg.style.background='var(--card)'; dlg.style.color='var(--fg)';
+          dlg.style.border='1px solid var(--br)'; dlg.style.borderRadius='12px';
+          dlg.style.padding='14px'; dlg.innerHTML = html;
+          document.body.appendChild(dlg);
+          try{ dlg.showModal(); }catch{ dlg.setAttribute('open','open'); }
+          const $ = sel => dlg.querySelector(sel);
+          $('#btnPostNoteCancel').onclick = ()=> closeDialog(dlg);
+          $('#btnPostNoteConfirm').onclick = ()=>{
+            const story = ($('#noteStory').value||'').trim();
+            if (!story){ alert('請先寫點內容喔～'); return; }
+            $('#btnPostNoteConfirm').disabled = true; $('#btnPostNoteConfirm').textContent='送出中…';
+            submitNote(story, dlg);
+          };
+          setTimeout(()=> $('#noteStory')?.focus(), 0);
+        }
+
+        btnPostNoteOpen.replaceWith(btnPostNoteOpen.cloneNode(true));
+        document.getElementById('btnPostNoteOpen').addEventListener('click', openNoteDialog);
+      })();
+
+      async function loadNotes(reset=false){
+        if (reset){ notesCursor=null; notesSeen.clear(); notesList.innerHTML=''; }
+        let qy = query(collection(db,'notes'), orderBy('ts','desc'), limit(20));
+        if (notesCursor){ qy = query(collection(db,'notes'), orderBy('ts','desc'), startAfter(notesCursor), limit(20)); }
+        const snap = await getDocs(qy);
+        if (snap.empty && !notesCursor){ notesList.innerHTML = `<div class="muted">尚無留言</div>`; return; }
+        let last=null; const html=[];
+        snap.forEach(ds=>{
+          const id = ds.id; if (notesSeen.has(id)) return;
+          notesSeen.add(id);
+          const d = ds.data()||{};
+          const t = d.ts?.toDate?.()||new Date();
+          const dt = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+          const story = (d.story||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          html.push(`<div style="margin:6px 0"><strong>${dt}</strong><br>${story}</div>`);
+          last = ds;
+        });
+        if (last) notesCursor = last;
+        notesList.insertAdjacentHTML('beforeend', html.join(''));
+      }
+      document.getElementById('btnMoreNotes').onclick = ()=> loadNotes(false);
+
+      /* 啟動 */
+      await ensureCountsDoc();
+      loadSince(); loadSumAll(); loadStatsTable(); loadStories(true); loadNotes(true);
+
+    }catch(err){
+      showErrorOverlay('Firebase 載入失敗：' + (err && (err.message||err)));
+    }
+  };
+</script>
+
 </body>
 </html>
