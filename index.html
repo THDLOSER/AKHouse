@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>想你牆（解鎖＋深色主題＋搓搓＋兌現小故事＋留言＋CSV+ZIP）</title>
+<title>想你牆（扣分打打＋姓名留言＋💯）</title>
 <style>
   :root{
     --bg:#ffffff; --fg:#111111; --sub:#555; --card:#ffffff; --br:#e6e6e6;
     --btn:#fafafa; --btn-br:#dddddd;
-    --c-think:#ff6aa2; --c-hug:#6aa8ff; --c-kiss:#7bd88f; --c-lean:#f7c84b; --c-rub:#c18cff;
+    --c-think:#ff6aa2; --c-hug:#6aa8ff; --c-kiss:#7bd88f; --c-lean:#f7c84b; --c-rub:#c18cff; --c-tap:#ff9b6a;
   }
   [data-theme="dark"]{
     --bg:#0f1115; --fg:#ffffff; --sub:#c7c7c7; --card:#141820; --br:#2a2f3a;
     --btn:#1a1f29; --btn-br:#2a2f3a;
-    --c-think:#ff84b4; --c-hug:#8bbbff; --c-kiss:#9be3ab; --c-lean:#ffd76a; --c-rub:#d2a6ff;
+    --c-think:#ff84b4; --c-hug:#8bbbff; --c-kiss:#9be3ab; --c-lean:#ffd76a; --c-rub:#d2a6ff; --c-tap:#ffb489;
   }
   html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto}
   header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--br)}
@@ -49,11 +49,12 @@
   .badge.kiss{border-color:var(--c-kiss)}
   .badge.lean{border-color:var(--c-lean)}
   .badge.rub{border-color:var(--c-rub)}
+  .badge.tap{border-color:var(--c-tap)}
 </style>
 </head>
 <body>
 <header>
-  <div><strong>想你牆</strong> <span class="muted">（A&K House）</span></div>
+  <div><strong>想你牆</strong> <span class="muted">（問答解鎖）</span></div>
   <div class="right">
     <button id="btnTheme" title="切換主題">🌙/☀️</button>
     <button id="btnResetGate" title="重新驗證">🔒 重新驗證</button>
@@ -62,7 +63,7 @@
 
 <div class="wrap">
 
-  <!-- 問答解鎖（預設顯示，避免整頁空白） -->
+  <!-- 問答解鎖 -->
   <div id="gate" class="card">
     <div style="font-weight:800;margin-bottom:6px">我們約定好幾歲？</div>
     <div class="toolbar">
@@ -80,6 +81,7 @@
       <button class="action-btn" data-key="kiss">😘 親親</button>
       <button class="action-btn" data-key="lean">🫴 靠一下</button>
       <button class="action-btn" data-key="rub">🐾 搓搓</button>
+      <button class="action-btn" data-key="tap">👊 打打（扣）</button>
     </div>
 
     <div class="row">
@@ -91,6 +93,8 @@
           <span class="chip"><span class="dot" style="background:var(--c-kiss)"></span>親親</span>
           <span class="chip"><span class="dot" style="background:var(--c-lean)"></span>靠一下</span>
           <span class="chip"><span class="dot" style="background:var(--c-rub)"></span>搓搓</span>
+          <span class="chip"><span class="dot" style="background:var(--c-tap)"></span>打打（扣）</span>
+          <span class="muted" style="margin-left:6px">＊每 100 以 💯 表示，每 50 以 ✨ 表示 </span>
         </div>
       </div>
 
@@ -104,7 +108,7 @@
           <div class="box">
             <div class="muted">目前累計已兌現（全部期間）</div>
             <div id="sumAllTxt" style="font-size:14px">
-              想你 <b id="sumThink">0</b>、抱抱 <b id="sumHug">0</b>、親親 <b id="sumKiss">0</b>、靠一下 <b id="sumLean">0</b>、搓搓 <b id="sumRub">0</b>
+              想你 <b id="sumThink">0</b>、抱抱 <b id="sumHug">0</b>、親親 <b id="sumKiss">0</b>、靠一下 <b id="sumLean">0</b>、搓搓 <b id="sumRub">0</b>、打打(扣) <b id="sumTap">0</b>
             </div>
           </div>
         </div>
@@ -121,12 +125,12 @@
             <label>月 <select id="selMonth"><option value="">全部</option></select></label>
             <button id="btnExportCsv">⬇️ 匯出CSV</button>
             <button id="btnExportZip">📦 打包匯出ZIP</button>
-            <span class="muted">本期間合計：想你 <b id="sumPThink">0</b>、抱抱 <b id="sumPHug">0</b>、親親 <b id="sumPKiss">0</b>、靠一下 <b id="sumPLean">0</b>、搓搓 <b id="sumPRub">0</b></span>
+            <span class="muted">本期間合計：想你 <b id="sumPThink">0</b>、抱抱 <b id="sumPHug">0</b>、親親 <b id="sumPKiss">0</b>、靠一下 <b id="sumPLean">0</b>、搓搓 <b id="sumPRub">0</b>、打打(扣) <b id="sumPTap">0</b></span>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>日期</th><th>想你</th><th>抱抱</th><th>親親</th><th>靠一下</th><th>搓搓</th></tr></thead>
-              <tbody id="tbStats"><tr><td colspan="6" class="muted">讀取中…</td></tr></tbody>
+              <thead><tr><th>日期</th><th>想你</th><th>抱抱</th><th>親親</th><th>靠一下</th><th>搓搓</th><th>打打(扣)</th><th>扣到</th></tr></thead>
+              <tbody id="tbStats"><tr><td colspan="8" class="muted">讀取中…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -167,7 +171,7 @@
 
 <audio id="meowSound" src="meow.mp3" preload="auto"></audio>
 
-<!-- 錯誤面板／主題切換／解鎖（離線先跑） -->
+<!-- 錯誤面板／主題切換／解鎖 -->
 <script>
   function showErrorOverlay(err){
     try{
@@ -202,7 +206,7 @@
     });
   })();
 
-  (function(){ // 問答解鎖（65）— 修正：使用旗標延後初始化
+  (function(){ // 問答解鎖（65）— 旗標延後初始化
     const GATE_ANSWER = 65, GATE_TTL_DAYS = 7;
     const gate = document.getElementById('gate'), main = document.getElementById('main');
     const inpAge = document.getElementById('inpAge'), btnGate = document.getElementById('btnGate');
@@ -218,16 +222,8 @@
     if (new URLSearchParams(location.search).get('reset')==='1'){
       localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts');
     }
+    if (gateOk()){ openMain(); localStorage.setItem('app-should-init','1'); } else { openGate(); }
 
-    // ✅ TTL 內：先顯示主畫面並設旗標，等主 App 載入後再初始化
-    if (gateOk()){
-      openMain();
-      localStorage.setItem('app-should-init','1');
-    }else{
-      openGate();
-    }
-
-    // ✅ 手動解鎖：立刻初始化（若已定義），並設旗標保險
     btnGate.onclick = ()=>{
       const n=normAge(inpAge.value);
       if(n===GATE_ANSWER){
@@ -276,7 +272,7 @@
       function tinyHex(s){ const x=(s||'').trim(); if(/^#[0-9a-fA-F]{6}$/.test(x)) return x; if(/^#[0-9a-fA-F]{3}$/.test(x)) return '#'+x[1]+x[1]+x[2]+x[2]+x[3]+x[3]; return '#000000'; }
       function readColors(){ return {
         think: cssVar('--c-think')||'#ff6aa2', hug: cssVar('--c-hug')||'#6aa8ff',
-        kiss: cssVar('--c-kiss')||'#7bd88f',  lean: cssVar('--c-lean')||'#f7c84b', rub: cssVar('--c-rub')||'#c18cff'
+        kiss: cssVar('--c-kiss')||'#7bd88f',  lean: cssVar('--c-lean')||'#f7c84b', rub: cssVar('--c-rub')||'#c18cff', tap: cssVar('--c-tap')||'#ff9b6a'
       }; }
       let COLORS = readColors();
 
@@ -290,38 +286,3745 @@
         ctx.setTransform(ratio,0,0,ratio,0,0);
         drawAll(lastCounts);
       }
-      function drawGroup(x,y,color,scale=1){
-        const h=28*scale, gap=6*scale, top=y, bottom=y+h;
-        ctx.strokeStyle=color; ctx.lineWidth=2;
-        for(let i=0;i<4;i++){ const xi=x+i*gap+2*i; ctx.beginPath(); ctx.moveTo(xi,top); ctx.lineTo(xi,bottom); ctx.stroke(); }
-        ctx.beginPath(); ctx.moveTo(x-2,bottom-2); ctx.lineTo(x+gap*3+6, top+2); ctx.stroke();
-      }
-      function drawTallies(startX,startY,color,count,scale=1){
-        const spacingX=40*scale, spacingY=38*scale;
-        const rect = canvas.getBoundingClientRect();
-        const usable = Math.max(0, rect.width - startX - 20);
-        const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
-        let x=startX, y=startY;
-        const groups=Math.floor(count/5), remain=count%5;
-        for(let i=0;i<groups;i++){
-          drawGroup(x,y,color,scale); x+=spacingX;
-          if((i+1)%maxPerRow===0){ x=startX; y+=spacingY; }
-        }
-        if(remain>0){
-          const top=y, bottom=y+28*scale, gap=6*scale;
-          ctx.strokeStyle=color; ctx.lineWidth=2;
-          for(let i=0;i<remain;i++){ const xi=x+i*gap+2*i; ctx.beginPath(); ctx.moveTo(xi,top); ctx.lineTo(xi,bottom); ctx.stroke(); }
-        }
-      }
+
+      /* 💯 + 正字 的畫法 */
+      function drawTallies(startX, startY, color, count, scale = 1){
+		  const spacingX = 40 * scale, spacingY = 38 * scale;
+		  const rect = canvas.getBoundingClientRect();
+		  const usable = Math.max(0, rect.width - startX - 20);
+		  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+		  let x = startX, y = startY;
+
+		  // 💯: 每 100
+		  const hundreds = Math.floor((count || 0) / 100);
+		  let rem100   = (count || 0) % 100;
+
+		  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+						  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+		  if (hundreds > 0){
+			const oldFill = ctx.fillStyle, oldFont = ctx.font;
+			ctx.fillStyle = fgColor;
+			ctx.font = `bold ${24 * scale}px system-ui`;
+			for (let i = 0; i < hundreds; i++){
+			  ctx.fillText('💯', x, y + 24 * scale);
+			  x += spacingX;
+			  if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+			}
+			ctx.fillStyle = oldFill; ctx.font = oldFont;
+		  }
+
+		  // ✨: 每 50
+		  const fifties = Math.floor(rem100 / 50);
+		  let rem50 = rem100 % 50;
+
+		  if (fifties > 0){
+			const oldFill = ctx.fillStyle, oldFont = ctx.font;
+			ctx.fillStyle = fgColor;
+			ctx.font = `bold ${24 * scale}px system-ui`;
+			for (let i = 0; i < fifties; i++){
+			  ctx.fillText('✨', x, y + 24 * scale);
+			  x += spacingX;
+			  if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+			}
+			ctx.fillStyle = oldFill; ctx.font = oldFont;
+		  }
+
+		  // 正字計算
+		  const groups = Math.floor(rem50 / 5);
+		  const remain = rem50 % 5;
+
+		  function drawGroup(x, y, color, scale = 1){
+			const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+			ctx.strokeStyle = color; ctx.lineWidth = 2;
+			for(let i=0;i<4;i++){
+			  const xi = x + i * gap + 2 * i;
+			  ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+			}
+			ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+		  }
+
+		  for (let i = 0; i < groups; i++){
+			drawGroup(x, y, color, scale);
+			x += spacingX;
+			if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+		  }
+
+		  // 剩下 1~4 根直線
+		  if (remain > 0){
+			const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+			ctx.strokeStyle = color; ctx.lineWidth = 2;
+			for (let i = 0; i < remain; i++){
+			  const xi = x + i * gap + 2 * i;
+			  ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+			}
+		  }
+		}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+	  function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+	  function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+	  function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+	  function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+	  function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+	  function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+      function drawTallies(startX, startY, color, count, scale = 1){
+  const spacingX = 40 * scale, spacingY = 38 * scale;
+  const rect = canvas.getBoundingClientRect();
+  const usable = Math.max(0, rect.width - startX - 20);
+  const maxPerRow = Math.max(1, Math.floor(usable / spacingX));
+
+  let x = startX, y = startY;
+
+  // 💯: 每 100
+  const hundreds = Math.floor((count || 0) / 100);
+  let rem100   = (count || 0) % 100;
+
+  const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
+                  || (document.documentElement.getAttribute('data-theme')==='dark' ? '#ffffff' : '#333333');
+
+  if (hundreds > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < hundreds; i++){
+      ctx.fillText('💯', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // ✨: 每 50
+  const fifties = Math.floor(rem100 / 50);
+  let rem50 = rem100 % 50;
+
+  if (fifties > 0){
+    const oldFill = ctx.fillStyle, oldFont = ctx.font;
+    ctx.fillStyle = fgColor;
+    ctx.font = `bold ${24 * scale}px system-ui`;
+    for (let i = 0; i < fifties; i++){
+      ctx.fillText('✨', x, y + 24 * scale);
+      x += spacingX;
+      if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+    }
+    ctx.fillStyle = oldFill; ctx.font = oldFont;
+  }
+
+  // 正字計算
+  const groups = Math.floor(rem50 / 5);
+  const remain = rem50 % 5;
+
+  function drawGroup(x, y, color, scale = 1){
+    const h = 28 * scale, gap = 6 * scale, top = y, bottom = y + h;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for(let i=0;i<4;i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.moveTo(x - 2, bottom - 2); ctx.lineTo(x + gap * 3 + 6, top + 2); ctx.stroke();
+  }
+
+  for (let i = 0; i < groups; i++){
+    drawGroup(x, y, color, scale);
+    x += spacingX;
+    if ((i + 1) % maxPerRow === 0){ x = startX; y += spacingY; }
+  }
+
+  // 剩下 1~4 根直線
+  if (remain > 0){
+    const top = y, bottom = y + 28 * scale, gap = 6 * scale;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let i = 0; i < remain; i++){
+      const xi = x + i * gap + 2 * i;
+      ctx.beginPath(); ctx.moveTo(xi, top); ctx.lineTo(xi, bottom); ctx.stroke();
+    }
+  }
+}
+
       function layout(){
         const rect = canvas.getBoundingClientRect();
         const margin=18, colGap=rect.width/3, rowGap=rect.height/2.2;
         return {
-          think:{x:margin, y:margin}, hug:{x:colGap+margin/2, y:margin}, kiss:{x:colGap*2+margin/2, y:margin},
-          lean:{x:margin, y:rowGap},  rub:{x:colGap+margin/2, y:rowGap}
+          think:{x:margin, y:margin}, 
+          hug:{x:colGap+margin/2, y:margin}, 
+          kiss:{x:colGap*2+margin/2, y:margin},
+          lean:{x:margin, y:rowGap},  
+          rub:{x:colGap+margin/2, y:rowGap},
+          tap:{x:colGap*2+margin/2, y:rowGap}
         };
       }
-      let lastCounts={think:0,hug:0,kiss:0,lean:0,rub:0};
+      let lastCounts={think:0,hug:0,kiss:0,lean:0,rub:0,tap:0};
       function drawAll(c){
         if(!canvas.width || !canvas.height) return;
         const rect = canvas.getBoundingClientRect();
@@ -336,12 +4039,14 @@
         ctx.fillText(`親親 (${c.kiss||0})`, pos.kiss.x, pos.kiss.y-6);
         ctx.fillText(`靠一下 (${c.lean||0})`, pos.lean.x, pos.lean.y-6);
         ctx.fillText(`搓搓 (${c.rub||0})`, pos.rub.x, pos.rub.y-6);
+        ctx.fillText(`打打(扣) (${c.tap||0})`,  pos.tap.x,  pos.tap.y-6);
         const s=1;
         drawTallies(pos.think.x,pos.think.y,COLORS.think,c.think||0,s);
         drawTallies(pos.hug.x,  pos.hug.y, COLORS.hug,  c.hug||0, s);
         drawTallies(pos.kiss.x, pos.kiss.y, COLORS.kiss, c.kiss||0, s);
         drawTallies(pos.lean.x, pos.lean.y, COLORS.lean, c.lean||0, s);
         drawTallies(pos.rub.x,  pos.rub.y, COLORS.rub,  c.rub||0, s);
+        drawTallies(pos.tap.x,  pos.tap.y, COLORS.tap,  c.tap||0, s);
       }
       window.addEventListener('resize', fitCanvas);
 
@@ -350,16 +4055,21 @@
       async function ensureCountsDoc(){
         const s = await getDoc(countsRef);
         if (!s.exists()){
-          await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, rub:0, createdAt: Date.now() });
+          await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, rub:0, tap:0, createdAt: Date.now() });
+        } else {
+          const d = s.data()||{};
+          if (typeof d.tap !== 'number'){
+            await setDoc(countsRef, { tap: 0 }, { merge:true });
+          }
         }
       }
       onSnapshot(countsRef, (snap)=>{
         const d = snap.data()||{};
-        lastCounts = { think:d.think||0, hug:d.hug||0, kiss:d.kiss||0, lean:d.lean||0, rub:d.rub||0 };
+        lastCounts = { think:d.think||0, hug:d.hug||0, kiss:d.kiss||0, lean:d.lean||0, rub:d.rub||0, tap:d.tap||0 };
         fitCanvas();
       });
 
-      /* 點擊加點數＋喵喵 */
+      /* 點擊加點數＋喵喵（打打=累積扣分） */
       const meow = document.getElementById('meowSound');
       document.querySelectorAll('.action-btn').forEach(btn=>{
         btn.addEventListener('click', async ()=>{
@@ -374,7 +4084,7 @@
         });
       });
 
-      /* 兌現（全部兌現＋小故事） */
+      /* 兌現（全部兌現＋小故事＋打打扣到誰） */
       const btnRedeemOpen = document.getElementById('btnRedeemOpen');
       function showDialog(innerHTML, binder){
         const dlg = document.createElement('dialog');
@@ -391,11 +4101,21 @@
         await ensureCountsDoc(); const s = await getDoc(countsRef); const c = s.data()||{};
         const html = `
           <div style="font-weight:800;margin-bottom:8px">確認兌現</div>
-          <div class="muted" style="margin-bottom:6px">會把牆面目前數量全部兌現並歸零：</div>
-          <div style="margin-bottom:8px">
+          <div class="muted" style="margin-bottom:6px">會把牆面目前數量全部兌現並歸零。若有「打打(扣)」，可選擇要扣到哪一項：</div>
+          <div style="margin-bottom:8px;line-height:1.8">
             想你 <b>${c.think||0}</b>、抱抱 <b>${c.hug||0}</b>、親親 <b>${c.kiss||0}</b>、
-            靠一下 <b>${c.lean||0}</b>、搓搓 <b>${c.rub||0}</b>
+            靠一下 <b>${c.lean||0}</b>、搓搓 <b>${c.rub||0}</b>、<span class="muted">打打(扣) <b>${c.tap||0}</b></span>
           </div>
+          <label>打打要扣到：
+            <select id="tapTarget">
+              <option value="think">想你</option>
+              <option value="hug">抱抱</option>
+              <option value="kiss">親親</option>
+              <option value="lean">靠一下</option>
+              <option value="rub">搓搓</option>
+            </select>
+          </label>
+          <div id="preview" class="muted" style="margin-top:6px"></div>
           <label style="display:block;margin-top:8px">小故事（選填）
             <textarea id="rStory" rows="4" placeholder="今天我們怎麼兌現的？"></textarea>
           </label>
@@ -404,22 +4124,41 @@
             <button id="btnRedeemCancel">取消</button>
           </div>`;
         const dlg = showDialog(html, (d)=>{
+          const sel = d.querySelector('#tapTarget');
+          const preview = d.querySelector('#preview');
+          function renderPreview(){
+            const t = (c.tap||0)>>>0, target = sel.value;
+            const base = { think:c.think||0, hug:c.hug||0, kiss:c.kiss||0, lean:c.lean||0, rub:c.rub||0 };
+            if (t>0) base[target] = Math.max(0, base[target]-t);
+            preview.textContent = `兌現後實得：想你 ${base.think}、抱抱 ${base.hug}、親親 ${base.kiss}、靠一下 ${base.lean}、搓搓 ${base.rub}` + ( (c.tap||0)>0 ? `（打打扣 ${t} → 扣到「${sel.options[sel.selectedIndex].text}」）` : '' );
+          }
+          renderPreview();
+          sel.onchange = renderPreview;
+
           d.querySelector('#btnRedeemCancel').onclick = ()=> closeDialog(d);
           d.querySelector('#btnRedeemConfirm').onclick = async ()=>{
             const okBtn = d.querySelector('#btnRedeemConfirm');
             okBtn.disabled=true; okBtn.textContent='處理中…';
             try{
               const snap = await getDoc(countsRef);
-              const cc = snap.data()||{think:0,hug:0,kiss:0,lean:0,rub:0};
+              const cc = snap.data()||{think:0,hug:0,kiss:0,lean:0,rub:0,tap:0};
+              const tapTarget = sel.value;
+              const tap = (cc.tap||0)>>>0;
+              const applied = { think:cc.think||0, hug:cc.hug||0, kiss:cc.kiss||0, lean:cc.lean||0, rub:cc.rub||0 };
+              if (tap>0) applied[tapTarget] = Math.max(0, (applied[tapTarget]||0) - tap);
+
               const t = new Date();
               const dateId = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
               const story = (d.querySelector('#rStory').value||'').trim();
 
               await addDoc(collection(db,'redeems'), {
-                date: dateId, think: cc.think||0, hug: cc.hug||0, kiss: cc.kiss||0, lean: cc.lean||0, rub: cc.rub||0,
+                date: dateId,
+                think: applied.think, hug: applied.hug, kiss: applied.kiss, lean: applied.lean, rub: applied.rub,
+                tap: tap, tapTarget,
                 story, ts: serverTimestamp()
               });
-              await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, rub:0 }, { merge:true });
+
+              await setDoc(countsRef, { think:0, hug:0, kiss:0, lean:0, rub:0, tap:0 }, { merge:true });
               await setDoc(doc(db,'last-redeem','time'), { ts: serverTimestamp() });
 
               closeDialog(d);
@@ -454,11 +4193,12 @@
       const sumKiss=document.getElementById('sumKiss');
       const sumLean=document.getElementById('sumLean');
       const sumRub=document.getElementById('sumRub');
+      const sumTap=document.getElementById('sumTap');
       async function loadSumAll(){
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('ts','desc')));
-        let T=0,H=0,K=0,L=0,R=0;
-        snap.forEach(d=>{ const x=d.data()||{}; T+=x.think||0; H+=x.hug||0; K+=x.kiss||0; L+=x.lean||0; R+=x.rub||0; });
-        sumThink.textContent=T; sumHug.textContent=H; sumKiss.textContent=K; sumLean.textContent=L; sumRub.textContent=R;
+        let T=0,H=0,K=0,L=0,R=0,TP=0;
+        snap.forEach(d=>{ const x=d.data()||{}; T+=x.think||0; H+=x.hug||0; K+=x.kiss||0; L+=x.lean||0; R+=x.rub||0; TP+=x.tap||0; });
+        sumThink.textContent=T; sumHug.textContent=H; sumKiss.textContent=K; sumLean.textContent=L; sumRub.textContent=R; sumTap.textContent=TP;
       }
 
       /* 統計表（年/月） */
@@ -470,22 +4210,23 @@
       const sumPKiss=document.getElementById('sumPKiss');
       const sumPLean=document.getElementById('sumPLean');
       const sumPRub=document.getElementById('sumPRub');
+      const sumPTap=document.getElementById('sumPTap');
 
       async function loadStatsTable(){
-        tbStats.innerHTML = `<tr><td colspan="6" class="muted">讀取中…</td></tr>`;
+        tbStats.innerHTML = `<tr><td colspan="8" class="muted">讀取中…</td></tr>`;
         const yVal = selYear.value, mVal = selMonth.value;
         const qy = query(collection(db,'redeems'), orderBy('date','asc'));
         const snap = await getDocs(qy);
-        const rows = []; let sT=0,sH=0,sK=0,sL=0,sR=0;
+        const rows = []; let sT=0,sH=0,sK=0,sL=0,sR=0,sTP=0;
         snap.forEach(ds=>{
           const d = ds.data()||{}; if (!d.date) return;
           if (yVal && !d.date.startsWith(yVal)) return;
           if (mVal && d.date.slice(5,7)!==mVal) return;
-          rows.push(`<tr><td>${d.date}</td><td>${d.think||0}</td><td>${d.hug||0}</td><td>${d.kiss||0}</td><td>${d.lean||0}</td><td>${d.rub||0}</td></tr>`);
-          sT+=d.think||0; sH+=d.hug||0; sK+=d.kiss||0; sL+=d.lean||0; sR+=d.rub||0;
+          rows.push(`<tr><td>${d.date}</td><td>${d.think||0}</td><td>${d.hug||0}</td><td>${d.kiss||0}</td><td>${d.lean||0}</td><td>${d.rub||0}</td><td>${d.tap||0}</td><td>${(d.tapTarget||'').toUpperCase()}</td></tr>`);
+          sT+=d.think||0; sH+=d.hug||0; sK+=d.kiss||0; sL+=d.lean||0; sR+=d.rub||0; sTP+=d.tap||0;
         });
-        tbStats.innerHTML = rows.length ? rows.join('') : `<tr><td colspan="6" class="muted">本期間沒有資料</td></tr>`;
-        sumPThink.textContent=sT; sumPHug.textContent=sH; sumPKiss.textContent=sK; sumPLean.textContent=sL; sumPRub.textContent=sR;
+        tbStats.innerHTML = rows.length ? rows.join('') : `<tr><td colspan="8" class="muted">本期間沒有資料</td></tr>`;
+        sumPThink.textContent=sT; sumPHug.textContent=sH; sumPKiss.textContent=sK; sumPLean.textContent=sL; sumPRub.textContent=sR; sumPTap.textContent=sTP;
       }
       (async function initYearMonth(){
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
@@ -508,20 +4249,19 @@
       async function exportCsvCurrentRange(){
         const yVal = selYear.value, mVal = selMonth.value;
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
-        const rows=[]; let sT=0,sH=0,sK=0,sL=0,sR=0;
+        const rows=[]; let sT=0,sH=0,sK=0,sL=0,sR=0,sTP=0;
         snap.forEach(ds=>{
           const d=ds.data()||{}; if(!d.date) return;
           if (yVal && !d.date.startsWith(yVal)) return;
           if (mVal && d.date.slice(5,7)!==mVal) return;
-          const think=d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0;
-          rows.push([d.date, think, hug, kiss, lean, rub, d.story||'']);
-          sT+=think; sH+=hug; sK+=kiss; sL+=lean; sR+=rub;
+          rows.push([d.date, d.think||0, d.hug||0, d.kiss||0, d.lean||0, d.rub||0, d.tap||0, (d.tapTarget||'').toUpperCase(), d.story||'']);
+          sT+=(d.think||0); sH+=(d.hug||0); sK+=(d.kiss||0); sL+=(d.lean||0); sR+=(d.rub||0); sTP+=(d.tap||0);
         });
         if(!rows.length){ alert('本期間沒有資料可匯出'); return; }
-        const header=['日期','想你','抱抱','親親','靠一下','搓搓','小故事'];
+        const header=['日期','想你','抱抱','親親','靠一下','搓搓','打打(扣)','扣到','小故事'];
         const lines=[ header.map(csvEscape).join(',') ];
         for(const r of rows) lines.push(r.map(csvEscape).join(','));
-        lines.push(['合計',sT,sH,sK,sL,sR,''].map(csvEscape).join(','));
+        lines.push(['合計',sT,sH,sK,sL,sR,sTP,'',''].map(csvEscape).join(','));
         const csv = '\uFEFF' + lines.join('\r\n');
         const now = new Date();
         const ym = yVal ? (mVal ? `${yVal}-${mVal}` : yVal) : '全部';
@@ -535,7 +4275,7 @@
       async function exportNotesCsvCurrentRange(){
         const yVal = selYear.value, mVal = selMonth.value;
         const snap = await getDocs(query(collection(db,'notes'), orderBy('ts','asc')));
-        const header=['日期時間','留言內容'];
+        const header=['日期時間','姓名','留言內容'];
         const lines=[ header.map(csvEscape).join(',') ];
         let count=0;
         snap.forEach(ds=>{
@@ -543,7 +4283,7 @@
           const y=String(dt.getFullYear()), m=String(dt.getMonth()+1).padStart(2,'0');
           if (yVal && y!==yVal) return;
           if (mVal && m!==mVal) return;
-          lines.push([ fmtDT(dt), d.story||'' ].map(csvEscape).join(','));
+          lines.push([ fmtDT(dt), d.name||'', d.story||'' ].map(csvEscape).join(','));
           count++;
         });
         if (count===0){ alert('本期間沒有留言可匯出'); return; }
@@ -561,24 +4301,23 @@
       // ===== 打包 ZIP（兌現 CSV + 留言 CSV + meta.json） =====
       async function buildRedeemsCsv(yVal, mVal){
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
-        const header=['日期','想你','抱抱','親親','靠一下','搓搓','小故事'];
+        const header=['日期','想你','抱抱','親親','靠一下','搓搓','打打(扣)','扣到','小故事'];
         const lines=[ header.map(csvEscape).join(',') ];
-        let sT=0,sH=0,sK=0,sL=0,sR=0;
+        let sT=0,sH=0,sK=0,sL=0,sR=0,sTP=0;
         snap.forEach(ds=>{
           const d=ds.data()||{}; if(!d.date) return;
           if (yVal && !d.date.startsWith(yVal)) return;
           if (mVal && d.date.slice(5,7)!==mVal) return;
-          const think=d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0;
-          lines.push([d.date, think, hug, kiss, lean, rub, d.story||''].map(csvEscape).join(','));
-          sT+=think; sH+=hug; sK+=kiss; sL+=lean; sR+=rub;
+          lines.push([d.date, d.think||0, d.hug||0, d.kiss||0, d.lean||0, d.rub||0, d.tap||0, (d.tapTarget||'').toUpperCase(), d.story||''].map(csvEscape).join(','));
+          sT+=d.think||0; sH+=d.hug||0; sK+=d.kiss||0; sL+=d.lean||0; sR+=d.rub||0; sTP+=d.tap||0;
         });
         if (lines.length===1) return null;
-        lines.push(['合計', sT, sH, sK, sL, sR, ''].map(csvEscape).join(','));
+        lines.push(['合計', sT, sH, sK, sL, sR, sTP, '', ''].map(csvEscape).join(','));
         return '\uFEFF' + lines.join('\r\n');
       }
       async function buildNotesCsv(yVal, mVal){
         const snap = await getDocs(query(collection(db,'notes'), orderBy('ts','asc')));
-        const header=['日期時間','留言內容'];
+        const header=['日期時間','姓名','留言內容'];
         const lines=[ header.map(csvEscape).join(',') ];
         let count=0;
         snap.forEach(ds=>{
@@ -586,7 +4325,7 @@
           const y=String(dt.getFullYear()), m=String(dt.getMonth()+1).padStart(2,'0');
           if (yVal && y!==yVal) return;
           if (mVal && m!==mVal) return;
-          lines.push([ fmtDT(dt), d.story||'' ].map(csvEscape).join(','));
+          lines.push([ fmtDT(dt), d.name||'', d.story||'' ].map(csvEscape).join(','));
           count++;
         });
         if (count===0) return null;
@@ -651,7 +4390,8 @@
         const t = d.ts?.toDate?.()||new Date();
         const dt = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
         const safe = (d.story||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const think = d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0;
+        const think = d.think||0, hug=d.hug||0, kiss=d.kiss||0, lean=d.lean||0, rub=d.rub||0, tap=d.tap||0;
+        const target = (d.tapTarget||'').toUpperCase();
         return `<div style="margin:8px 0;padding:6px 8px;border:1px solid var(--br);border-radius:10px;background:var(--card)">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
             <strong>${dt}</strong>
@@ -661,6 +4401,7 @@
               <span class="badge kiss">親親 ${kiss}</span>
               <span class="badge lean">靠一下 ${lean}</span>
               <span class="badge rub">搓搓 ${rub}</span>
+              <span class="badge tap">打打扣 ${tap}${target?` → ${target}`:''}</span>
             </span>
           </div>${safe ? `<div style="margin-top:6px">${safe}</div>` : ``}
         </div>`;
@@ -694,7 +4435,7 @@
 
       /* 顏色客製 */
       document.getElementById('btnColorCfg').addEventListener('click', ()=>{
-        const cur = { think: cssVar('--c-think'), hug: cssVar('--c-hug'), kiss: cssVar('--c-kiss'), lean: cssVar('--c-lean'), rub: cssVar('--c-rub') };
+        const cur = { think: cssVar('--c-think'), hug: cssVar('--c-hug'), kiss: cssVar('--c-kiss'), lean: cssVar('--c-lean'), rub: cssVar('--c-rub'), tap: cssVar('--c-tap') };
         const html = `<div style="font-weight:800;margin-bottom:8px">顏色設定</div>
           <div class="toolbar" style="flex-direction:column;gap:10px">
             <label>想你 <input id="colThink" type="color" value="${tinyHex(cur.think)}"></label>
@@ -702,6 +4443,7 @@
             <label>親親 <input id="colKiss"  type="color" value="${tinyHex(cur.kiss)}"></label>
             <label>靠一下 <input id="colLean" type="color" value="${tinyHex(cur.lean)}"></label>
             <label>搓搓 <input id="colRub"   type="color" value="${tinyHex(cur.rub)}"></label>
+            <label>打打(扣) <input id="colTap"   type="color" value="${tinyHex(cur.tap)}"></label>
           </div>
           <div class="toolbar" style="margin-top:10px;justify-content:flex-end">
             <button id="btnColorSave">儲存</button>
@@ -715,7 +4457,8 @@
               '--c-hug':   d.querySelector('#colHug').value,
               '--c-kiss':  d.querySelector('#colKiss').value,
               '--c-lean':  d.querySelector('#colLean').value,
-              '--c-rub':   d.querySelector('#colRub').value
+              '--c-rub':   d.querySelector('#colRub').value,
+              '--c-tap':   d.querySelector('#colTap').value
             };
             const curr = JSON.parse(localStorage.getItem('colorPrefs')||'{}');
             localStorage.setItem('colorPrefs', JSON.stringify({...curr, ...vals}));
@@ -734,7 +4477,7 @@
         }catch{}
       })();
 
-      /* 只是單獨留言（強化版：<dialog> fallback、去重、提示） */
+      /* 只是單獨留言（姓名＋內容） */
       const notesList = document.getElementById('notesList');
       const btnMoreNotes = document.getElementById('btnMoreNotes');
       let notesCursor = null; let notesSeen = new Set();
@@ -752,9 +4495,9 @@
           document.body.appendChild(t); setTimeout(()=> t.remove(), 1600);
         }
 
-        async function submitNote(story, dlg){
+        async function submitNote(name, story, dlg){
           try{
-            await addDoc(collection(db,'notes'), { story: story.trim(), ts: serverTimestamp() });
+            await addDoc(collection(db,'notes'), { name: (name||'').trim(), story: (story||'').trim(), ts: serverTimestamp() });
             if (dlg) closeDialog(dlg);
             loadNotes(true);
             toast('留言已送出！');
@@ -767,12 +4510,16 @@
         function openNoteDialog(){
           const supportsDialog = (typeof HTMLDialogElement !== 'undefined');
           if (!supportsDialog) {
+            const name = window.prompt('你的名字（可留空）') || '';
             const text = window.prompt('寫點想說的話吧（不影響計數）');
-            if (text && text.trim()) submitNote(text);
+            if (text && text.trim()) submitNote(name, text);
             return;
           }
           const html = `<div style="font-weight:800;margin-bottom:8px">只是單獨留言</div>
-            <label>小故事 / 留言
+            <label>姓名（可留空）
+              <input id="noteName" type="text" placeholder="例如 Karen / 我">
+            </label>
+            <label style="margin-top:8px">小故事 / 留言
               <textarea id="noteStory" rows="4" placeholder="寫點什麼給彼此吧～不會影響計數或兌現"></textarea>
             </label>
             <div class="toolbar" style="margin-top:10px;justify-content:flex-end">
@@ -788,10 +4535,11 @@
           const $ = sel => dlg.querySelector(sel);
           $('#btnPostNoteCancel').onclick = ()=> closeDialog(dlg);
           $('#btnPostNoteConfirm').onclick = ()=>{
+            const name = ($('#noteName').value||'').trim();
             const story = ($('#noteStory').value||'').trim();
             if (!story){ alert('請先寫點內容喔～'); return; }
             $('#btnPostNoteConfirm').disabled = true; $('#btnPostNoteConfirm').textContent='送出中…';
-            submitNote(story, dlg);
+            submitNote(name, story, dlg);
           };
           setTimeout(()=> $('#noteStory')?.focus(), 0);
         }
@@ -813,8 +4561,11 @@
           const d = ds.data()||{};
           const t = d.ts?.toDate?.()||new Date();
           const dt = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+          const name = (d.name||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
           const story = (d.story||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          html.push(`<div style="margin:6px 0"><strong>${dt}</strong><br>${story}</div>`);
+          html.push(`<div style="margin:6px 0">
+            <strong>${dt}</strong>${name?` <span class="muted">・${name}</span>`:''}<br>${story}
+          </div>`);
           last = ds;
         });
         if (last) notesCursor = last;
@@ -831,7 +4582,7 @@
     }
   };
 
-  // ✅ 主 App 定義完成後：若先前已通過解鎖（或 TTL 內），立刻自動初始化一次
+  // 主 App 定義完成後：若先前已通過解鎖（或 TTL 內），立刻初始化一次
   if (localStorage.getItem('app-should-init') === '1') {
     try { window.__afterUnlock(); } finally { localStorage.removeItem('app-should-init'); }
   }
