@@ -499,7 +499,7 @@
       }
 
       /* ====== 🎛️ 萬花筒設定（可存 localStorage） ====== */
-      const DEF_KCFG = { speed: 0.01, breathe: 0.01, maxPerKind: 100, dots: true, symmetry: 18 };
+      const DEF_KCFG = { speed: 0.01, breathe: 0.01, maxPerKind: 100, dots: true, symmetry: 12 };
       let KCFG = (()=>{ try{ return {...DEF_KCFG, ...(JSON.parse(localStorage.getItem('kaleidoCfg')||'{}'))}; }catch{ return {...DEF_KCFG}; }})();
       let SYM = KCFG.symmetry;
 
@@ -527,7 +527,7 @@
               </label>
               <label>對稱數
                 <select id="k_sym">
-                  ${[12,18,24,30].map(v=>`<option value="${v}" ${KCFG.symmetry==v?'selected':''}>${v}</option>`).join('')}
+                  ${[6,12,18,24].map(v=>`<option value="${v}" ${KCFG.symmetry==v?'selected':''}>${v}</option>`).join('')}
                 </select>
               </label>
             </div>
