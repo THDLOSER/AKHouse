@@ -499,7 +499,7 @@
       }
 
       /* ====== 🎛️ 萬花筒設定（可存 localStorage） ====== */
-      const DEF_KCFG = { speed: 0.01, breathe: 0.01, maxPerKind: 100, dots: true, symmetry: 12 };
+      const DEF_KCFG = { speed: 0.01, breathe: 0.01, maxPerKind: 50, dots: true, symmetry: 12 };
       let KCFG = (()=>{ try{ return {...DEF_KCFG, ...(JSON.parse(localStorage.getItem('kaleidoCfg')||'{}'))}; }catch{ return {...DEF_KCFG}; }})();
       let SYM = KCFG.symmetry;
 
@@ -1371,3 +1371,4 @@
 
 </body>
 </html>
+
