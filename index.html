@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>想你牆（萬花筒・彩色玻璃＋設定版）</title>
+<title>想你牆（萬花筒・彩色玻璃＋設定版｜修正版）</title>
 <style>
   :root{
     --bg:#ffffff; --fg:#111111; --sub:#555; --card:#ffffff; --br:#e6e6e6;
@@ -228,21 +228,29 @@
     function normAge(v){ const s = toHalfWidthNum(String(v||'')).replace(/\s+/g,'').replace(/[^\d]/g,''); const n = parseInt(s,10); return Number.isFinite(n)?n:NaN; }
     function openGate(){ gate.style.display='block'; main.style.display='none'; }
     function openMain(){ gate.style.display='none'; main.style.display='block'; }
-    function gateOk(){ const ok = localStorage.getItem('gate-ok')==='1'; if(!ok) return false; if(GATE_TTL_DAYS<=0) return false; const ts=parseInt(localStorage.getItem('gate-ok-ts')||'0',10); return (Date.now()-ts)<GATE_TTL_DAYS*86400000; }
+    function gateOk(){
+      const ok = localStorage.getItem('gate-ok')==='1'; if(!ok) return false;
+      if(GATE_TTL_DAYS<=0) return false; const ts=parseInt(localStorage.getItem('gate-ok-ts')||'0',10);
+      return (Date.now()-ts)<GATE_TTL_DAYS*86400000;
+    }
     function setGateOk(){ localStorage.setItem('gate-ok','1'); localStorage.setItem('gate-ok-ts', String(Date.now())); }
     btnResetGate.onclick = ()=>{ localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts'); openGate(); };
 
     if (new URLSearchParams(location.search).get('reset')==='1'){
       localStorage.removeItem('gate-ok'); localStorage.removeItem('gate-ok-ts');
     }
-    if (gateOk()){ openMain(); localStorage.setItem('app-should-init','1'); } else { openGate(); }
+    if (gateOk()){ 
+      openMain(); 
+      if (typeof window.__afterUnlock === 'function') window.__afterUnlock();  // 直接呼叫，不再用旗標
+    } else { 
+      openGate(); 
+    }
 
     btnGate.onclick = ()=>{
       const n=normAge(inpAge.value);
       if(n===GATE_ANSWER){
         setGateOk(); gateMsg.textContent=''; openMain();
-        localStorage.setItem('app-should-init','1');
-        if (typeof window.__afterUnlock === 'function') window.__afterUnlock();
+        if (typeof window.__afterUnlock === 'function') window.__afterUnlock(); // 只呼叫，不寫入任何旗標
       }else{
         gateMsg.textContent='答錯囉～再試試（提示：65）';
       }
@@ -251,7 +259,7 @@
   })();
 </script>
 
-<!-- ========= 視圖模式（正字牆 / 萬花筒） & 切換 ========= -->
+<!-- ========= 視圖模式（正字牆 / 萬花筒） & 切換（修正版） ========= -->
 <script>
   let viewMode = localStorage.getItem('viewMode') || 'tally';
   const btnToggleView = document.getElementById('btnToggleView');
@@ -265,21 +273,17 @@
       btnToggleView.title = '切換萬花筒/正字牆';
     }
     if (kaleidoHud) kaleidoHud.style.display = (mode === 'kaleido') ? 'block' : 'none';
-    // 讓內部 drawAll 負責啟動/停止動畫
     if (typeof window.drawAll === 'function') window.drawAll(window.lastCounts || {});
   }
-
-  btnToggleView?.addEventListener('click', ()=>{
-    applyView(viewMode === 'kaleido' ? 'tally' : 'kaleido');
-  });
-
-  // 初始套用
+  btnToggleView?.addEventListener('click', ()=> applyView(viewMode === 'kaleido' ? 'tally' : 'kaleido'));
   applyView(viewMode);
 </script>
 
 <!-- ========= 主 App ========= -->
 <script>
   window.__afterUnlock = async function(){
+    if (window.__appInited) return;   // 防止重複初始化（修正儲存後對話框彈第二次）
+    window.__appInited = true;
     try{
 	const firebaseConfig = {
 	  apiKey: "AIzaSyAiJTyJGBZIOQW9KAmBUNbxdBFJFr2ABuc",
@@ -495,7 +499,7 @@
       }
 
       /* ====== 🎛️ 萬花筒設定（可存 localStorage） ====== */
-      const DEF_KCFG = { speed: 0.15, breathe: 0.02, maxPerKind: 40, dots: true, symmetry: 6 };
+      const DEF_KCFG = { speed: 0.01, breathe: 0.01, maxPerKind: 100, dots: true, symmetry: 18 };
       let KCFG = (()=>{ try{ return {...DEF_KCFG, ...(JSON.parse(localStorage.getItem('kaleidoCfg')||'{}'))}; }catch{ return {...DEF_KCFG}; }})();
       let SYM = KCFG.symmetry;
 
@@ -523,7 +527,7 @@
               </label>
               <label>對稱數
                 <select id="k_sym">
-                  ${[6,12,18,24].map(v=>`<option value="${v}" ${KCFG.symmetry==v?'selected':''}>${v}</option>`).join('')}
+                  ${[6,12,18,24,30].map(v=>`<option value="${v}" ${KCFG.symmetry==v?'selected':''}>${v}</option>`).join('')}
                 </select>
               </label>
             </div>
@@ -1307,67 +1311,48 @@
         container.innerHTML = html.join('');
       }
 
+      // 修正：不再用 where('parentId','==', null)，改前端判斷（相容舊資料）
       async function loadNotes(reset=false){
-	  if (reset){ notesCursor=null; notesSeen.clear(); notesList.innerHTML=''; }
+        if (reset){ notesCursor=null; notesSeen.clear(); notesList.innerHTML=''; }
+        let qy = query(collection(db,'notes'), orderBy('ts','desc'), limit(20));
+        if (notesCursor){ qy = query(collection(db,'notes'), orderBy('ts','desc'), startAfter(notesCursor), limit(20)); }
+        const snap = await getDocs(qy);
+        if (snap.empty && !notesCursor){ notesList.innerHTML = `<div class="muted">尚無留言</div>`; return; }
+        let last=null; const html=[];
+        snap.forEach(ds=>{
+          const id = ds.id; if (notesSeen.has(id)) return;
+          const d = ds.data()||{};
+          const hasField = Object.prototype.hasOwnProperty.call(d,'parentId');
+          const isRoot = hasField ? (d.parentId===null) : (!d.parentId); // 無欄位或為 null 視為主留言
+          if (!isRoot) return;
+          notesSeen.add(id);
+          html.push(noteRowHTML(id, d));
+          last = ds;
+        });
+        if (!html.length && !notesCursor){ notesList.innerHTML = `<div class="muted">尚無留言</div>`; return; }
+        if (last) notesCursor = last;
 
-	  // 不再用 where('parentId','==', null)；有些舊文沒有 parentId 欄位
-	  let qy = query(collection(db,'notes'), orderBy('ts','desc'), limit(20));
-	  if (notesCursor){
-		qy = query(collection(db,'notes'), orderBy('ts','desc'), startAfter(notesCursor), limit(20));
-	  }
-
-	  const snap = await getDocs(qy);
-	  if (snap.empty && !notesCursor){
-		notesList.innerHTML = `<div class="muted">尚無留言</div>`;
-		return;
-	  }
-
-	  let last=null; const html=[];
-	  snap.forEach(ds=>{
-		const id = ds.id;
-		if (notesSeen.has(id)) return;
-		const d = ds.data()||{};
-
-		// 主留言判斷：有 parentId 就得是 null；沒有 parentId 欄位也視為主留言
-		const isRoot = (Object.prototype.hasOwnProperty.call(d, 'parentId')) ? (d.parentId === null) : (!d.parentId);
-		if (!isRoot) return;
-
-		notesSeen.add(id);
-		html.push(noteRowHTML(id, d));
-		last = ds;
-	  });
-
-	  if (!html.length && !notesCursor){
-		notesList.innerHTML = `<div class="muted">尚無留言</div>`;
-		return;
-	  }
-
-	  if (last) notesCursor = last;
-
-	  const frag = document.createElement('div'); frag.innerHTML = html.join('');
-	  frag.querySelectorAll('.btnReply').forEach(b=>{
-		b.addEventListener('click', ()=>{
-		  const id = b.getAttribute('data-id');
-		  window.__openReplyFor(id);
-		});
-	  });
-	  frag.querySelectorAll('.btnShowReplies').forEach(b=>{
-		b.addEventListener('click', async ()=>{
-		  const id = b.getAttribute('data-id');
-		  const wrap = b.closest('[data-note-id]');
-		  const container = wrap.querySelector('.replies');
-		  if (container.style.display==='none'){
-			container.style.display='block';
-			await loadReplies(id, container);
-			b.textContent='隱藏回覆';
-		  }else{
-			container.style.display='none';
-			b.textContent='顯示回覆';
-		  }
-		});
-	  });
-	  notesList.appendChild(frag);
-	}
+        const frag = document.createElement('div'); frag.innerHTML = html.join('');
+        frag.querySelectorAll('.btnReply').forEach(b=>{
+          b.addEventListener('click', ()=>{
+            const id = b.getAttribute('data-id');
+            window.__openReplyFor(id);
+          });
+        });
+        frag.querySelectorAll('.btnShowReplies').forEach(b=>{
+          b.addEventListener('click', async ()=>{
+            const id = b.getAttribute('data-id');
+            const wrap = b.closest('[data-note-id]');
+            const container = wrap.querySelector('.replies');
+            if (container.style.display==='none'){
+              container.style.display='block'; await loadReplies(id, container); b.textContent='隱藏回覆';
+            }else{
+              container.style.display='none'; b.textContent='顯示回覆';
+            }
+          });
+        });
+        notesList.appendChild(frag);
+      }
       document.getElementById('btnMoreNotes').onclick = ()=> loadNotes(false);
 
       /* ===== 啟動 ===== */
@@ -1375,18 +1360,13 @@
       loadSince(); loadSumAll(); loadStatsTable(); loadStories(true); loadNotes(true);
       fitCanvas();
 
-      // 初始就處於萬花筒模式時，啟動動畫
+      // 若一開始就是萬花筒，讓內部動畫自己啟動
       if (localStorage.getItem('viewMode')==='kaleido'){ if (typeof window._kaleidoFrame==='function') requestAnimationFrame(window._kaleidoFrame); }
 
     }catch(err){
       showErrorOverlay('Firebase 載入失敗：' + (err && (err.message||err)));
     }
   };
-
-  // 若上次已通過解鎖，開頁就先初始化
-  if (localStorage.getItem('app-should-init') === '1') {
-    try { window.__afterUnlock(); } finally { localStorage.removeItem('app-should-init'); }
-  }
 </script>
 
 </body>
