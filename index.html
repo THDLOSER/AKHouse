@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>想你牆（打打扣分＋姓名留言＋回覆＋💯/✨）</title>
+<title>想你牆（萬花筒・彩色玻璃＋設定版）</title>
 <style>
   :root{
     --bg:#ffffff; --fg:#111111; --sub:#555; --card:#ffffff; --br:#e6e6e6;
@@ -29,6 +29,7 @@
   @media(min-width:980px){.row{grid-template-columns:1.2fr .8fr}}
   .canvas-wrap{border:1px dashed var(--br);border-radius:12px;padding:10px;background:var(--card)}
   #wall{width:100%;height:52vh;display:block}
+  .kaleido-hud{margin-bottom:8px;font-size:14px;line-height:1.6;color:var(--fg)}
   .legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin:8px 0 0}
   .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--br);border-radius:999px;padding:6px 10px;background:var(--card);color:var(--fg)}
   .dot{width:10px;height:10px;border-radius:50%}
@@ -54,10 +55,20 @@
 </style>
 </head>
 <body>
+
+<!-- 全域保險絲 -->
+<script>
+  window.lastCounts = {think:0,hug:0,kiss:0,lean:0,rub:0,tap:0};
+  window.drawAll = window.drawAll || function(){};
+  window.fitCanvas = window.fitCanvas || function(){};
+</script>
+
 <header>
   <div><strong>想你牆</strong> <span class="muted">（A&K House）</span></div>
   <div class="right">
     <button id="btnTheme" title="切換主題">🌙/☀️</button>
+    <button id="btnToggleView" title="切換萬花筒/正字牆">🌸 萬花筒</button>
+    <button id="btnKaleidoCfg" title="萬花筒設定">🎛️ 設定</button>
     <button id="btnResetGate" title="重新驗證">🔒 重新驗證</button>
   </div>
 </header>
@@ -87,6 +98,7 @@
 
     <div class="row">
       <div class="canvas-wrap">
+        <div id="kaleidoHud" class="kaleido-hud" style="display:none"></div>
         <canvas id="wall"></canvas>
         <div class="legend">
           <span class="chip"><span class="dot" style="background:var(--c-think)"></span>想你</span>
@@ -155,12 +167,10 @@
 
         <div class="card" style="margin-top:10px">
           <div style="font-weight:800;margin-bottom:6px">只是單獨留言（含回覆，不影響計數）</div>
-
           <div class="toolbar" style="margin-bottom:6px">
             <button id="btnExportNotesCsv">⬇️ 匯出留言CSV</button>
             <span class="muted">（依上方年／月篩選）</span>
           </div>
-
           <div id="notesList" class="muted">尚無留言</div>
           <div style="margin-top:8px"><button id="btnMoreNotes" class="ghost">載入更多留言</button></div>
         </div>
@@ -172,8 +182,8 @@
 
 <audio id="meowSound" src="meow.mp3" preload="auto"></audio>
 
-<!-- 錯誤面板／主題切換／解鎖 -->
 <script>
+  /* ====== 公用錯誤面板 ====== */
   function showErrorOverlay(err){
     try{
       const box = document.createElement('div');
@@ -190,13 +200,14 @@
   window.addEventListener('error', e => showErrorOverlay(e.error || e.message));
   window.addEventListener('unhandledrejection', e => showErrorOverlay(e.reason || e));
 
-  (function(){ // 主題切換
+  /* ====== 主題切換 ====== */
+  (function(){
     const root = document.documentElement;
     const btnTheme = document.getElementById('btnTheme');
     function applyTheme(v){
       root.setAttribute('data-theme', v==='dark' ? 'dark' : 'light');
       localStorage.setItem('theme', v);
-      if (typeof fitCanvas === 'function') fitCanvas();
+      if (typeof window.fitCanvas === 'function') window.fitCanvas();
     }
     const saved = localStorage.getItem('theme');
     if (saved) applyTheme(saved);
@@ -207,7 +218,8 @@
     });
   })();
 
-  (function(){ // 問答解鎖（65）— 旗標延後初始化
+  /* ====== 問答解鎖（65） ====== */
+  (function(){
     const GATE_ANSWER = 65, GATE_TTL_DAYS = 7;
     const gate = document.getElementById('gate'), main = document.getElementById('main');
     const inpAge = document.getElementById('inpAge'), btnGate = document.getElementById('btnGate');
@@ -239,7 +251,33 @@
   })();
 </script>
 
-<!-- 解鎖後才載入 Firebase + 主 App -->
+<!-- ========= 視圖模式（正字牆 / 萬花筒） & 切換 ========= -->
+<script>
+  let viewMode = localStorage.getItem('viewMode') || 'tally';
+  const btnToggleView = document.getElementById('btnToggleView');
+  const kaleidoHud = document.getElementById('kaleidoHud');
+
+  function applyView(mode){
+    viewMode = mode;
+    localStorage.setItem('viewMode', mode);
+    if (btnToggleView) {
+      btnToggleView.textContent = (mode === 'kaleido') ? '🧱 正字牆' : '🌸 萬花筒';
+      btnToggleView.title = '切換萬花筒/正字牆';
+    }
+    if (kaleidoHud) kaleidoHud.style.display = (mode === 'kaleido') ? 'block' : 'none';
+    // 讓內部 drawAll 負責啟動/停止動畫
+    if (typeof window.drawAll === 'function') window.drawAll(window.lastCounts || {});
+  }
+
+  btnToggleView?.addEventListener('click', ()=>{
+    applyView(viewMode === 'kaleido' ? 'tally' : 'kaleido');
+  });
+
+  // 初始套用
+  applyView(viewMode);
+</script>
+
+<!-- ========= 主 App ========= -->
 <script>
   window.__afterUnlock = async function(){
     try{
@@ -268,6 +306,7 @@
       try { await signInAnonymously(auth); } 
       catch(e){ showErrorOverlay('匿名登入失敗：請在 Authentication 啟用 Anonymous\n'+(e && (e.message||e))); }
 
+      /* ==== CSS 變數工具 ==== */
       function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
       function setCssVar(k,v){ document.documentElement.style.setProperty(k, v); }
       function tinyHex(s){ const x=(s||'').trim(); if(/^#[0-9a-fA-F]{6}$/.test(x)) return x; if(/^#[0-9a-fA-F]{3}$/.test(x)) return '#'+x[1]+x[1]+x[2]+x[2]+x[3]+x[3]; return '#000000'; }
@@ -277,6 +316,7 @@
       }; }
       let COLORS = readColors();
 
+      /* ==== Canvas/繪圖環境 ==== */
       const canvas = document.getElementById('wall');
       const ctx = canvas.getContext('2d', { alpha:true });
       function fitCanvas(){
@@ -287,8 +327,68 @@
         ctx.setTransform(ratio,0,0,ratio,0,0);
         drawAll(lastCounts);
       }
+      window.fitCanvas = fitCanvas;
 
-      /* 💯 / ✨ / 正字 的畫法：100=💯，50=✨ */
+      /* ==== 色彩工具 / 漸層 ==== */
+      function hexToRgb(hex){
+        const h=(hex||'').trim().replace('#','');
+        if (![3,6].includes(h.length)) return {r:0,g:0,b:0};
+        const f = h.length===3 ? (i)=>parseInt(h[i]+h[i],16) : (i)=>parseInt(h.slice(i*2,i*2+2),16);
+        return { r:f(0), g:f(1), b:f(2) };
+      }
+      function rgbToHsl(r,g,b){
+        r/=255; g/=255; b/=255;
+        const max=Math.max(r,g,b), min=Math.min(r,g,b);
+        let h,s,l=(max+min)/2;
+        if (max===min){ h=s=0; }
+        else{
+          const d=max-min;
+          s=l>0.5 ? d/(2-max-min) : d/(max+min);
+          switch(max){
+            case r: h=(g-b)/d + (g<b?6:0); break;
+            case g: h=(b-r)/d + 2; break;
+            case b: h=(r-g)/d + 4; break;
+          }
+          h/=6;
+        }
+        return {h,s,l};
+      }
+      function hslToRgba(h,s,l,a=1){
+        function hue2rgb(p,q,t){ if(t<0) t+=1; if(t>1) t-=1; if(t<1/6) return p+(q-p)*6*t; if(t<1/2) return q; if(t<2/3) return p+(q-p)*(2/3 - t)*6; return p; }
+        let r,g,b;
+        if(s===0){ r=g=b=l; }
+        else{
+          const q=l<0.5 ? l*(1+s) : l+s-l*s;
+          const p=2*l-q;
+          r=hue2rgb(p,q,h+1/3);
+          g=hue2rgb(p,q,h);
+          b=hue2rgb(p,q,h-1/3);
+        }
+        return `rgba(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)},${a})`;
+      }
+      function lighten(hex, amt=0.15, a=1){
+        const {r,g,b}=hexToRgb(hex); const {h,s,l}=rgbToHsl(r,g,b);
+        const nl=Math.max(0,Math.min(1,l+amt));
+        return hslToRgba(h,s,nl,a);
+      }
+      function darken(hex, amt=0.15, a=1){
+        const {r,g,b}=hexToRgb(hex); const {h,s,l}=rgbToHsl(r,g,b);
+        const nl=Math.max(0,Math.min(1,l-amt));
+        return hslToRgba(h,s,nl,a);
+      }
+      function makeRadialGradient(ctx,x,y,r,hex){
+        const g=ctx.createRadialGradient(x,y,r*0.15,x,y,r);
+        g.addColorStop(0, lighten(hex,0.25,0.95));
+        g.addColorStop(1, darken(hex,0.15,0.95));
+        return g;
+      }
+      function withAlpha(hex, a){
+        const {r,g,b}=hexToRgb(hex);
+        return `rgba(${r},${g},${b},${Math.max(0,Math.min(1,a))})`;
+      }
+      function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7, t|61); return ((t^t>>>14)>>>0)/4294967296; } }
+
+      /* ==== 💯/✨/正字 ==== */
       function drawTallies(startX, startY, color, count, scale = 1){
         const spacingX = 40 * scale, spacingY = 38 * scale;
         const rect = canvas.getBoundingClientRect();
@@ -358,6 +458,7 @@
         }
       }
 
+      /* ==== 正字牆布局 & 繪製 ==== */
       function layout(){
         const rect = canvas.getBoundingClientRect();
         const margin=18, colGap=rect.width/3, rowGap=rect.height/2.2;
@@ -371,8 +472,276 @@
         };
       }
       let lastCounts={think:0,hug:0,kiss:0,lean:0,rub:0,tap:0};
+      window.lastCounts = lastCounts;
+
+      /* ====== HUD ====== */
+      function renderKaleidoHud(c){
+        const colors = getComputedStyle(document.documentElement);
+        const items = [
+          {label:'想你',  color: colors.getPropertyValue('--c-think'), val:c.think||0},
+          {label:'抱抱',  color: colors.getPropertyValue('--c-hug'),   val:c.hug||0},
+          {label:'親親',  color: colors.getPropertyValue('--c-kiss'),  val:c.kiss||0},
+          {label:'靠一下',color: colors.getPropertyValue('--c-lean'),  val:c.lean||0},
+          {label:'搓搓',  color: colors.getPropertyValue('--c-rub'),    val:c.rub||0},
+          {label:'打打(扣)',color: colors.getPropertyValue('--c-tap'), val:c.tap||0},
+        ];
+        const el = document.getElementById('kaleidoHud');
+        if (!el) return;
+        el.innerHTML = items.map(it =>
+          `<span class="chip" style="border-color:${it.color}">
+             <span class="dot" style="background:${it.color}"></span>${it.label} <b>${it.val}</b>
+           </span>`
+        ).join('');
+      }
+
+      /* ====== 🎛️ 萬花筒設定（可存 localStorage） ====== */
+      const DEF_KCFG = { speed: 0.15, breathe: 0.02, maxPerKind: 40, dots: true, symmetry: 6 };
+      let KCFG = (()=>{ try{ return {...DEF_KCFG, ...(JSON.parse(localStorage.getItem('kaleidoCfg')||'{}'))}; }catch{ return {...DEF_KCFG}; }})();
+      let SYM = KCFG.symmetry;
+
+      // 設定面板
+      (function setupKaleidoConfig(){
+        const btn = document.getElementById('btnKaleidoCfg');
+        if (!btn) return;
+        function openCfgDialog(){
+          const html = `
+            <div style="font-weight:800;margin-bottom:8px">萬花筒設定</div>
+            <div class="toolbar" style="flex-direction:column;gap:10px;min-width:260px">
+              <label>旋轉速度（rad/s）
+                <input id="k_speed" type="range" min="0" max="1" step="0.01" value="${KCFG.speed}">
+                <div class="muted"><span id="k_speed_v">${KCFG.speed}</span></div>
+              </label>
+              <label>呼吸幅度（比例）
+                <input id="k_breathe" type="range" min="0" max="0.1" step="0.005" value="${KCFG.breathe}">
+                <div class="muted"><span id="k_breathe_v">${KCFG.breathe}</span></div>
+              </label>
+              <label>單一類別碎片上限
+                <input id="k_max" type="number" min="3" max="120" step="1" value="${KCFG.maxPerKind}">
+              </label>
+              <label>
+                <input id="k_dots" type="checkbox" ${KCFG.dots?'checked':''}> 顯示點點紋理
+              </label>
+              <label>對稱數
+                <select id="k_sym">
+                  ${[6,12,18,24].map(v=>`<option value="${v}" ${KCFG.symmetry==v?'selected':''}>${v}</option>`).join('')}
+                </select>
+              </label>
+            </div>
+            <div class="toolbar" style="margin-top:10px;justify-content:flex-end">
+              <button id="k_save">儲存</button>
+              <button id="k_cancel">取消</button>
+            </div>
+          `;
+          const dlg = showDialog(html, (d)=>{
+            const sp=d.querySelector('#k_speed'), spv=d.querySelector('#k_speed_v');
+            const br=d.querySelector('#k_breathe'), brv=d.querySelector('#k_breathe_v');
+            sp.oninput = ()=> spv.textContent = sp.value;
+            br.oninput = ()=> brv.textContent = br.value;
+            d.querySelector('#k_cancel').onclick = ()=> { try{ d.close(); }catch{} d.remove(); };
+            d.querySelector('#k_save').onclick = ()=>{
+              const next = {
+                speed: parseFloat(sp.value||DEF_KCFG.speed),
+                breathe: parseFloat(br.value||DEF_KCFG.breathe),
+                maxPerKind: Math.max(3, Math.min(120, parseInt(d.querySelector('#k_max').value||DEF_KCFG.maxPerKind, 10))),
+                dots: !!d.querySelector('#k_dots').checked,
+                symmetry: parseInt(d.querySelector('#k_sym').value||DEF_KCFG.symmetry, 10)
+              };
+              KCFG = {...KCFG, ...next};
+              localStorage.setItem('kaleidoCfg', JSON.stringify(KCFG));
+              SYM = KCFG.symmetry;
+              _frags = []; // 強制重生碎片
+              if (localStorage.getItem('viewMode')==='kaleido' || viewMode==='kaleido'){
+                if (typeof window.drawAll==='function') window.drawAll(window.lastCounts||{});
+              }
+              try{ d.close(); }catch{} d.remove();
+            };
+          });
+        }
+        btn.addEventListener('click', openCfgDialog);
+      })();
+
+      /* ====== 萬花筒：圖形生成 + 漸層 + 動畫 ====== */
+      let _frags = [];   // 預生成碎片
+      let _seed = 0;
+
+      function regenFragments(c, R){
+        const seed = ((c.think|0)*13 + (c.hug|0)*29 + (c.kiss|0)*31 + (c.lean|0)*37 + (c.rub|0)*41 + (c.tap|0)*43) >>> 0;
+        if (seed === _seed && _frags.length) return;
+        _seed = seed;
+        const rng = mulberry32(seed);
+        const items = [
+          {key:'think', color: COLORS.think, val:c.think||0},
+          {key:'hug',   color: COLORS.hug,   val:c.hug||0},
+          {key:'kiss',  color: COLORS.kiss,  val:c.kiss||0},
+          {key:'lean',  color: COLORS.lean,  val:c.lean||0},
+          {key:'rub',   color: COLORS.rub,   val:c.rub||0},
+          {key:'tap',   color: COLORS.tap,   val:c.tap||0}
+        ];
+        const wedge = (Math.PI*2)/SYM;
+        const list = [];
+        items.forEach(it=>{
+          const n = Math.min(KCFG.maxPerKind, Math.max(3, Math.ceil(it.val/3)));
+          for(let i=0;i<n;i++){
+            const r1 = R * (0.12 + 0.78 * rng());
+            const r2 = Math.min(R, r1 + R*(0.05 + 0.2*rng()));
+            const a0 = wedge * rng();
+            const a1 = a0 + wedge*(0.14 + 0.72*rng());
+            const k  = (rng()<0.33) ? 'arc' : (rng()<0.66 ? 'petal' : (rng()<0.82 ? 'triangle' : (rng()<0.92 ? 'star' : 'wavy')));
+            const dots = KCFG.dots && (rng()<0.18);
+            const depth = (r1+r2)/2/R;
+            const alpha = (it.key==='tap') ? (0.40 + 0.25*depth) : (0.55 + 0.35*depth);
+            list.push({r1,r2,a0,a1,kind:k,color:it.color,alpha,dots});
+          }
+        });
+        _frags = list;
+      }
+
+      function drawFrag(kind, r1, r2, a0, a1, baseColor, gradient){
+        ctx.fillStyle = gradient || withAlpha(baseColor, 0.85);
+        ctx.strokeStyle = withAlpha(baseColor, 0.95);
+        ctx.lineWidth = Math.max(1, (Math.min(canvas.width,canvas.height)/600));
+
+        if (kind==='arc'){
+          ctx.beginPath();
+          ctx.arc(0,0,r2,a0,a1);
+          ctx.arc(0,0,r1,a1,a0,true);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }else if (kind==='triangle'){
+          const mid=(a0+a1)/2;
+          ctx.beginPath();
+          ctx.moveTo(r1*Math.cos(a0), r1*Math.sin(a0));
+          ctx.lineTo(r2*Math.cos(mid), r2*Math.sin(mid));
+          ctx.lineTo(r1*Math.cos(a1), r1*Math.sin(a1));
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }else if (kind==='petal'){
+          const mid=(a0+a1)/2;
+          ctx.beginPath();
+          ctx.moveTo(r1*Math.cos(a0), r1*Math.sin(a0));
+          ctx.quadraticCurveTo((r2*1.06)*Math.cos(mid),(r2*1.06)*Math.sin(mid), r1*Math.cos(a1), r1*Math.sin(a1));
+          ctx.quadraticCurveTo((r2*0.94)*Math.cos(mid),(r2*0.94)*Math.sin(mid), r1*Math.cos(a0), r1*Math.sin(a0));
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }else if (kind==='star'){
+          const spikes=5, inner=(r1+r2)/2;
+          let rot=a0, step=(a1-a0)/ (spikes*2);
+          ctx.beginPath();
+          for(let i=0;i<spikes*2;i++){
+            const rr = (i%2===0) ? r2 : inner;
+            ctx.lineTo(rr*Math.cos(rot), rr*Math.sin(rot));
+            rot += step;
+          }
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }else if (kind==='wavy'){
+          const steps=20; const amp=(r2-r1)*0.35;
+          ctx.beginPath();
+          for(let i=0;i<=steps;i++){
+            const t=i/steps;
+            const ang=a0 + (a1-a0)*t;
+            const rr=r1 + (r2-r1)*t + Math.sin(t*Math.PI*2)*amp*0.15;
+            const x=rr*Math.cos(ang), y=rr*Math.sin(ang);
+            if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          }
+          for(let i=steps;i>=0;i--){
+            const t=i/steps;
+            const ang=a0 + (a1-a0)*t;
+            const rr=r1 + Math.sin((t+0.5)*Math.PI*2)*amp*0.1;
+            const x=(r1+rr*0.1)*Math.cos(ang), y=(r1+rr*0.1)*Math.sin(ang);
+            ctx.lineTo(x,y);
+          }
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+        }
+      }
+
+      function drawDotsTexture(r1,r2,a0,a1, hex, density=6){
+        const step = (a1-a0)/density;
+        const rr = (r1+r2)/2;
+        ctx.save();
+        ctx.fillStyle = lighten(hex,0.25,0.5);
+        for(let i=0;i<density;i++){
+          const ang=a0 + step*i + step/2;
+          const rad = rr + (i%2? -1:1) * (r2-r1)*0.15;
+          ctx.beginPath();
+          ctx.arc(rad*Math.cos(ang), rad*Math.sin(ang), Math.max(1, (r2-r1)*0.07), 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawKaleidoFrame(c, tMs){
+        const rect = canvas.getBoundingClientRect();
+        const W = rect.width, H = rect.height;
+        const cx = W/2, cy = H/2;
+        const shorter = Math.min(W, H);
+        const padding = Math.max(12, shorter*0.05);
+        const R = Math.max(40, shorter/2 - padding);
+
+        regenFragments(c, R);
+
+        ctx.clearRect(0,0,W,H);
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // 動態：慢速旋轉 + 微呼吸
+        const t = tMs*0.001;
+        const angle = t * KCFG.speed;
+        const breathe = 1 + Math.sin(t*0.8) * (KCFG.breathe);
+        ctx.rotate(angle);
+        ctx.scale(breathe, breathe);
+
+        const wedge = (Math.PI*2)/SYM;
+
+        // 背景細圈
+        ctx.save();
+        ctx.globalAlpha = 0.08;
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#888';
+        for(let i=0;i<6;i++){
+          const r = (R*0.25) + i*(R*0.12);
+          ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
+        }
+        ctx.restore();
+
+        _frags.forEach(f=>{
+          const grad = makeRadialGradient(ctx, 0, 0, (f.r1+f.r2)/2, f.color);
+          for (let k=0;k<SYM;k++){
+            ctx.save();
+            ctx.rotate(k*wedge);
+            if (k%2===1) ctx.scale(-1,1);
+            ctx.globalAlpha = f.alpha;
+            drawFrag(f.kind, f.r1, f.r2, f.a0, f.a1, f.color, grad);
+            if (f.dots) drawDotsTexture(f.r1,f.r2,f.a0,f.a1, f.color, 6);
+            ctx.restore();
+          }
+        });
+
+        ctx.restore();
+      }
+
+      // 動畫 loop
+      let _animRaf = null;
+      function _loop(ts){
+        window._kaleidoFrame = _loop;
+        drawKaleidoFrame(lastCounts, ts||performance.now());
+        _animRaf = requestAnimationFrame(_loop);
+      }
+      window._kaleidoFrame = _loop;
+
+      /* ===== 主繪製：依模式切換 ===== */
       function drawAll(c){
         if(!canvas.width || !canvas.height) return;
+
+        if (localStorage.getItem('viewMode')==='kaleido' || viewMode==='kaleido') {
+          renderKaleidoHud(c || lastCounts || {});
+          if (!_animRaf){ _animRaf = requestAnimationFrame(_loop); }
+          return;
+        }else{
+          if (_animRaf){ cancelAnimationFrame(_animRaf); _animRaf=null; }
+        }
+
+        // 正字牆
         const rect = canvas.getBoundingClientRect();
         ctx.clearRect(0,0,rect.width,rect.height);
         const fgColor = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()
@@ -394,9 +763,10 @@
         drawTallies(pos.rub.x,  pos.rub.y, COLORS.rub,  c.rub||0, s);
         drawTallies(pos.tap.x,  pos.tap.y, COLORS.tap,  c.tap||0, s);
       }
+      window.drawAll = drawAll;
       window.addEventListener('resize', fitCanvas);
 
-      /* 牆面資料 */
+      /* ===== Firestore：牆面資料 ===== */
       const countsRef = doc(db, 'tally-wall', 'global');
       async function ensureCountsDoc(){
         const s = await getDoc(countsRef);
@@ -412,10 +782,11 @@
       onSnapshot(countsRef, (snap)=>{
         const d = snap.data()||{};
         lastCounts = { think:d.think||0, hug:d.hug||0, kiss:d.kiss||0, lean:d.lean||0, rub:d.rub||0, tap:d.tap||0 };
+        window.lastCounts = lastCounts;
         fitCanvas();
       });
 
-      /* 點擊加點數＋喵喵（打打=累積扣分） */
+      /* ===== 點擊按鈕（喵喵音效） ===== */
       const meow = document.getElementById('meowSound');
       document.querySelectorAll('.action-btn').forEach(btn=>{
         btn.addEventListener('click', async ()=>{
@@ -430,7 +801,7 @@
         });
       });
 
-      /* 兌現（全部兌現＋小故事＋打打扣到誰） */
+      /* ===== 兌現（全部兌現＋小故事＋打打扣到誰） ===== */
       const btnRedeemOpen = document.getElementById('btnRedeemOpen');
       function showDialog(innerHTML, binder){
         const dlg = document.createElement('dialog');
@@ -514,12 +885,12 @@
         });
       };
 
-      /* 倒數 */
+      /* ===== 倒數 ===== */
       const sinceTxt = document.getElementById('sinceTxt');
       async function loadSince(){
         try{
           const s = await getDoc(doc(db,'last-redeem','time'));
-        const t = s.exists() && s.data().ts?.toDate ? s.data().ts.toDate() : null;
+          const t = s.exists() && s.data().ts?.toDate ? s.data().ts.toDate() : null;
           if (!t){ sinceTxt.textContent='尚未兌現'; return; }
           function tick(){
             const diff = Date.now() - t.getTime();
@@ -533,7 +904,7 @@
         }catch{ sinceTxt.textContent='讀取失敗'; }
       }
 
-      /* 累計（全部期間） */
+      /* ===== 累計（全部期間） ===== */
       const sumThink=document.getElementById('sumThink');
       const sumHug=document.getElementById('sumHug');
       const sumKiss=document.getElementById('sumKiss');
@@ -547,7 +918,7 @@
         sumThink.textContent=T; sumHug.textContent=H; sumKiss.textContent=K; sumLean.textContent=L; sumRub.textContent=R; sumTap.textContent=TP;
       }
 
-      /* 統計表（年/月） */
+      /* ===== 統計表（年/月） ===== */
       const selYear = document.getElementById('selYear');
       const selMonth= document.getElementById('selMonth');
       const tbStats = document.getElementById('tbStats');
@@ -646,7 +1017,27 @@
       }
       document.getElementById('btnExportNotesCsv')?.addEventListener('click', exportNotesCsvCurrentRange);
 
-      // ===== 打包 ZIP（兌現 CSV + 留言 CSV + meta.json） =====
+      /* ===== 打包 ZIP ===== */
+      let __zipReady = null;
+      function loadJSZip(){
+        if (__zipReady) return __zipReady;
+        __zipReady = new Promise((resolve, reject)=>{
+          if (window.JSZip) return resolve(window.JSZip);
+          const s=document.createElement('script');
+          s.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload=()=> resolve(window.JSZip);
+          s.onerror=()=> reject(new Error('JSZip 載入失敗'));
+          document.head.appendChild(s);
+        });
+        return __zipReady;
+      }
+      function buildMetaJson(){
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+        const colorPrefs = (()=>{ try{ return JSON.parse(localStorage.getItem('colorPrefs')||'{}'); }catch{ return {}; }})();
+        const counts = (typeof lastCounts==='object' && lastCounts) ? lastCounts : {};
+        const exportedAt = new Date().toISOString();
+        return JSON.stringify({ theme, colorPrefs, counts, exportedAt }, null, 2);
+      }
       async function buildRedeemsCsv(yVal, mVal){
         const snap = await getDocs(query(collection(db,'redeems'), orderBy('date','asc')));
         const header=['日期','想你','抱抱','親親','靠一下','搓搓','打打(扣)','扣到','小故事'];
@@ -682,39 +1073,15 @@
         lines.push(['總筆數', count, '', '', '', ''].map(csvEscape).join(','));
         return '\uFEFF' + lines.join('\r\n');
       }
-      function buildMetaJson(){
-        const theme = document.documentElement.getAttribute('data-theme') || 'light';
-        const colorPrefs = (()=>{ try{ return JSON.parse(localStorage.getItem('colorPrefs')||'{}'); }catch{ return {}; }})();
-        const counts = (typeof lastCounts==='object' && lastCounts) ? lastCounts : {};
-        const exportedAt = new Date().toISOString();
-        return JSON.stringify({ theme, colorPrefs, counts, exportedAt }, null, 2);
-      }
-      let __zipReady = null;
-      function loadJSZip(){
-        if (__zipReady) return __zipReady;
-        __zipReady = new Promise((resolve, reject)=>{
-          if (window.JSZip) return resolve(window.JSZip);
-          const s=document.createElement('script');
-          s.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-          s.onload=()=> resolve(window.JSZip);
-          s.onerror=()=> reject(new Error('JSZip 載入失敗'));
-          document.head.appendChild(s);
-        });
-        return __zipReady;
-      }
       async function exportZipAll(){
         try{
-          const yVal = selYear.value;
-          const mVal = selMonth.value;
+          const yVal = selYear.value, mVal = selMonth.value;
           const ymLabel = yVal ? (mVal ? `${yVal}-${mVal}` : yVal) : '全部';
           const [redeemsCsv, notesCsv] = await Promise.all([
             buildRedeemsCsv(yVal, mVal),
             buildNotesCsv(yVal, mVal)
           ]);
-          if (!redeemsCsv && !notesCsv){
-            alert('本期間沒有任何資料可匯出');
-            return;
-          }
+          if (!redeemsCsv && !notesCsv){ alert('本期間沒有任何資料可匯出'); return; }
           const meta = buildMetaJson();
           const JSZip = await loadJSZip();
           const zip = new JSZip();
@@ -731,7 +1098,7 @@
       }
       document.getElementById('btnExportZip')?.addEventListener('click', exportZipAll);
 
-      /* 近期兌現小故事（排序＋去重） */
+      /* ===== 小故事 ===== */
       const storiesList = document.getElementById('storiesList');
       const btnMoreStories = document.getElementById('btnMoreStories');
       const selStorySort = document.getElementById('selStorySort');
@@ -783,7 +1150,7 @@
       btnMoreStories.onclick = ()=> loadStories(false);
       selStorySort?.addEventListener('change', ()=> loadStories(true));
 
-      /* 顏色客製 */
+      /* ===== 顏色客製 ===== */
       document.getElementById('btnColorCfg').addEventListener('click', ()=>{
         const cur = { think: cssVar('--c-think'), hug: cssVar('--c-hug'), kiss: cssVar('--c-kiss'), lean: cssVar('--c-lean'), rub: cssVar('--c-rub'), tap: cssVar('--c-tap') };
         const html = `<div style="font-weight:800;margin-bottom:8px">顏色設定</div>
@@ -814,7 +1181,7 @@
             localStorage.setItem('colorPrefs', JSON.stringify({...curr, ...vals}));
             for(const [k,v] of Object.entries(vals)){ setCssVar(k, v); }
             COLORS = readColors(); drawAll(lastCounts);
-            storiesList.innerHTML = applyStorySort(storiesBuffer, document.getElementById('selStorySort').value).map(storyRowHTML).join('');
+            loadStories(true);
             closeDialog(d);
           };
         });
@@ -827,7 +1194,7 @@
         }catch{}
       })();
 
-      /* 只是單獨留言（姓名＋內容）＋回覆 */
+      /* ===== 只是單獨留言（姓名＋內容）＋回覆 ===== */
       const notesList = document.getElementById('notesList');
       const btnMoreNotes = document.getElementById('btnMoreNotes');
       let notesCursor = null; let notesSeen = new Set();
@@ -841,7 +1208,6 @@
       }
       function esc(s){ return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-      // 開主留言的輸入對話框
       (function setupNotesPost(){
         const btnPostNoteOpen = document.getElementById('btnPostNoteOpen');
         if (!btnPostNoteOpen){ console.warn('#btnPostNoteOpen 找不到'); return; }
@@ -854,7 +1220,7 @@
               name: (name||'').trim(), story: (story||'').trim(), parentId: parentId ?? null, ts: serverTimestamp()
             });
             if (dlg) closeDialog(dlg);
-            if (parentId){ // 回覆後更新該串
+            if (parentId){
               const container = document.querySelector(`[data-note-id="${parentId}"] .replies`);
               if (container) await loadReplies(parentId, container);
               toast('回覆已送出！');
@@ -902,7 +1268,6 @@
           openDialog('只是單獨留言', (name, story, dlg)=> submitNote(name, story, null, dlg));
         });
 
-        // 開回覆對話框（對特定留言）
         window.__openReplyFor = function(noteId, presetName=''){
           openDialog('回覆留言', (name, story, dlg)=> submitNote(name, story, noteId, dlg), presetName);
         };
@@ -945,69 +1310,40 @@
       async function loadNotes(reset=false){
 	  if (reset){ notesCursor=null; notesSeen.clear(); notesList.innerHTML=''; }
 
-	  // 先用新結構（有索引）：只抓主留言
-	  let qy = query(collection(db,'notes'), where('parentId','==', null), orderBy('ts','desc'), limit(20));
+	  // 不再用 where('parentId','==', null)；有些舊文沒有 parentId 欄位
+	  let qy = query(collection(db,'notes'), orderBy('ts','desc'), limit(20));
 	  if (notesCursor){
-		qy = query(collection(db,'notes'), where('parentId','==', null), orderBy('ts','desc'), startAfter(notesCursor), limit(20));
-	  }
-	  let snap = await getDocs(qy);
-
-	  // 如果找不到，退回“免索引”的後援：抓全部再前端篩選（兼容舊資料）
-	  if (snap.empty && !notesCursor){
-		const all = await getDocs(query(collection(db,'notes'), limit(40)));
-		const arr = [];
-		all.forEach(ds=>{
-		  const d = ds.data()||{};
-		  // 視為主留言：parentId === null 或 parentId 未定義（舊資料）
-		  if (d.parentId === null || d.parentId === undefined){ arr.push({ id: ds.id, ...d, __id: ds.id, __ds: ds }); }
-		});
-		arr.sort((a,b)=> (b.ts?.toMillis?.()||0) - (a.ts?.toMillis?.()||0));
-		if (arr.length === 0){
-		  notesList.innerHTML = `<div class="muted">尚無留言</div>`;
-		  return;
-		}
-		// 渲染
-		const html = arr.map(x=> noteRowHTML(x.__id, x)).join('');
-		const frag = document.createElement('div'); frag.innerHTML = html;
-		frag.querySelectorAll('.btnReply').forEach(b=>{
-		  b.addEventListener('click', ()=>{
-			const id = b.getAttribute('data-id');
-			window.__openReplyFor(id);
-		  });
-		});
-		frag.querySelectorAll('.btnShowReplies').forEach(b=>{
-		  b.addEventListener('click', async ()=>{
-			const id = b.getAttribute('data-id');
-			const wrap = b.closest('[data-note-id]');
-			const container = wrap.querySelector('.replies');
-			if (container.style.display==='none'){
-			  container.style.display='block';
-			  await loadReplies(id, container);
-			  b.textContent='隱藏回覆';
-			}else{
-			  container.style.display='none';
-			  b.textContent='顯示回覆';
-			}
-		  });
-		});
-		notesList.appendChild(frag);
-		return;
+		qy = query(collection(db,'notes'), orderBy('ts','desc'), startAfter(notesCursor), limit(20));
 	  }
 
-	  // 正常新路徑渲染
+	  const snap = await getDocs(qy);
 	  if (snap.empty && !notesCursor){
 		notesList.innerHTML = `<div class="muted">尚無留言</div>`;
 		return;
 	  }
+
 	  let last=null; const html=[];
 	  snap.forEach(ds=>{
-		const id = ds.id; if (notesSeen.has(id)) return;
-		notesSeen.add(id);
+		const id = ds.id;
+		if (notesSeen.has(id)) return;
 		const d = ds.data()||{};
+
+		// 主留言判斷：有 parentId 就得是 null；沒有 parentId 欄位也視為主留言
+		const isRoot = (Object.prototype.hasOwnProperty.call(d, 'parentId')) ? (d.parentId === null) : (!d.parentId);
+		if (!isRoot) return;
+
+		notesSeen.add(id);
 		html.push(noteRowHTML(id, d));
 		last = ds;
 	  });
+
+	  if (!html.length && !notesCursor){
+		notesList.innerHTML = `<div class="muted">尚無留言</div>`;
+		return;
+	  }
+
 	  if (last) notesCursor = last;
+
 	  const frag = document.createElement('div'); frag.innerHTML = html.join('');
 	  frag.querySelectorAll('.btnReply').forEach(b=>{
 		b.addEventListener('click', ()=>{
@@ -1034,17 +1370,20 @@
 	}
       document.getElementById('btnMoreNotes').onclick = ()=> loadNotes(false);
 
-      /* 啟動 */
+      /* ===== 啟動 ===== */
       await ensureCountsDoc();
       loadSince(); loadSumAll(); loadStatsTable(); loadStories(true); loadNotes(true);
       fitCanvas();
+
+      // 初始就處於萬花筒模式時，啟動動畫
+      if (localStorage.getItem('viewMode')==='kaleido'){ if (typeof window._kaleidoFrame==='function') requestAnimationFrame(window._kaleidoFrame); }
 
     }catch(err){
       showErrorOverlay('Firebase 載入失敗：' + (err && (err.message||err)));
     }
   };
 
-  // 主 App 定義完成後：若先前已通過解鎖（或 TTL 內），立刻初始化一次
+  // 若上次已通過解鎖，開頁就先初始化
   if (localStorage.getItem('app-should-init') === '1') {
     try { window.__afterUnlock(); } finally { localStorage.removeItem('app-should-init'); }
   }
